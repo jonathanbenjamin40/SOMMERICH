@@ -5420,1844 +5420,245 @@ document.getElementById('chapter_appendix').innerHTML = `
 <div class="chapter-header">
   <div class="chapter-num">25</div>
   <h1 class="chapter-title">נספחים ומסמכים תומכים</h1>
-  <p class="chapter-desc">תרשים זרימה מלא של תהליך ניהול תיק הייבוא — מפתיחה ועד סגירה, כולל אישור עסקאות, שיוך הזמנות וניתוח תיק. נשלח על ידי הלקוח כבסיס לאפיון.</p>
+  <p class="chapter-desc">תצוגות אינטראקטיביות — תבנית הצעת מחיר, טופס דיגיטלי לטכנאי שטח, ותרשים זרימה של תהליך תיק הייבוא.</p>
 </div>
 
-<div class="spec-section">
-  <div class="spec-section-title">נספח א' — תרשים זרימה: תהליך ניהול תיק ייבוא</div>
-  <div class="info-box gold" style="margin-bottom:16px;">
-    <strong>מקור:</strong> תרשים זרימה שנשלח על ידי הלקוח — dor yehuda — ומשמש כבסיס לאפיון מסך ניהול תיקי הייבוא (פרק 13). התרשים ממפה את התהליך הידני הקיים (AS IS) מפתיחת תיק ועד לסגירה וייצוא מסמכים.
+<!-- ─── DROPDOWN NAV ─── -->
+<div class="queries-nav">
+  <div class="queries-select-row">
+    <select class="queries-select" id="appendixSelect" onchange="showAppendixPanel(this.value)">
+      <option value="">— בחר נספח —</option>
+      <option value="ap_quote">תבנית הצעת מחיר — Hebrew / English</option>
+      <option value="ap_techform">טופס דיגיטלי לטכנאי שטח</option>
+      <option value="ap_flow">תרשים זרימה — תיק ייבוא</option>
+    </select>
+    <span class="tag tag-gold" style="white-space:nowrap;">3 נספחים</span>
   </div>
-  <div id="appendix-flow-container"></div>
+
+  <!-- ═══ PANEL: הצעת מחיר ═══ -->
+  <div class="query-panel" id="app_ap_quote">
+    <div class="query-title-big">תבנית הצעת מחיר</div>
+    <div class="query-meta-bar">
+      <span class="tag tag-gold">עברית / English</span>
+      <span class="tag tag-green">אינטראקטיבי</span>
+    </div>
+    <div class="query-desc-text">תבנית הצעת המחיר המעוצבת של זומריך — עם כלל הפרמטרים הדינמיים. לחץ על "English Version" למעבר לגרסה האנגלית.</div>
+    <div id="appendixQuoteRoot"></div>
+  </div>
+
+  <!-- ═══ PANEL: טופס טכנאי ═══ -->
+  <div class="query-panel" id="app_ap_techform">
+    <div class="query-title-big">טופס דיגיטלי לטכנאי שטח</div>
+    <div class="query-meta-bar">
+      <span class="tag tag-blue">שלב 2</span>
+      <span class="tag tag-green">אינטראקטיבי</span>
+      <span class="tag tag-gold">מחליף מיילים</span>
+    </div>
+    <div class="query-desc-text">
+      הטופס מאפשר לטכנאי שטח לדווח לאחר ביקור ישירות מהמכשיר — הדיווח נכנס לכרטסת הלקוח עם תיוג גורמים לטיפול. מחליף את כתיבת המיילים הידנית לאחר ביקורים.
+    </div>
+    <div id="appendixTechRoot"></div>
+  </div>
+
+  <!-- ═══ PANEL: תרשים זרימה ═══ -->
+  <div class="query-panel" id="app_ap_flow">
+    <div class="query-title-big">תרשים זרימה — תהליך תיק ייבוא</div>
+    <div class="query-meta-bar">
+      <span class="tag tag-white">AS IS — תהליך ידני קיים</span>
+    </div>
+    <div class="query-desc-text">תרשים הזרימה ממפה את התהליך הידני הקיים (AS IS) מפתיחת תיק ייבוא ועד לסגירה וייצוא מסמכים. נשלח על ידי הלקוח כבסיס לאפיון.</div>
+    <div class="placeholder-block" style="margin-top:16px;">
+      <div class="placeholder-icon">📊</div>
+      <div class="placeholder-text">
+        <strong>בפיתוח</strong>
+        תרשים הזרימה יוצג כאן בגרסה הבאה
+      </div>
+    </div>
+  </div>
+
 </div>
 `;
 
-// Build the flowchart SVG into the appendix container after render
-(function() {
-  window._buildAppendixFlow = function() {
-    const container = document.getElementById('appendix-flow-container');
-    if (!container) return;
-    container.innerHTML = '<svg width="100%" viewBox="0 0 680 2820" role="img" style="font-family:inherit;">' + buildFlowSVG() + '</svg>';
-  };
-
-  function buildFlowSVG() {
-    return `
-<title>תרשים זרימה — תיק ייבוא זומריך</title>
-<desc>תרשים זרימה מלא של תהליך ניהול תיק הייבוא מפתיחה ועד סגירה</desc>
-<defs>
-<marker id="fa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</marker>
-<style>
-.fb { fill:#E6F1FB; stroke:#185FA5; stroke-width:0.8; }
-.fa2 { fill:#E1F5EE; stroke:#0F6E56; stroke-width:0.8; }
-.fc { fill:#FAEEDA; stroke:#854F0B; stroke-width:0.8; }
-.fd { fill:#FCEBEB; stroke:#A32D2D; stroke-width:0.8; }
-.fp { fill:#EEEDFE; stroke:#534AB7; stroke-width:0.8; }
-.ftb { font-family:inherit; font-size:12px; font-weight:500; fill:#0C447C; text-anchor:middle; dominant-baseline:central; }
-.ftg { font-family:inherit; font-size:12px; font-weight:500; fill:#085041; text-anchor:middle; dominant-baseline:central; }
-.fta { font-family:inherit; font-size:12px; font-weight:500; fill:#633806; text-anchor:middle; dominant-baseline:central; }
-.ftr { font-family:inherit; font-size:12px; font-weight:500; fill:#791F1F; text-anchor:middle; dominant-baseline:central; }
-.ftp { font-family:inherit; font-size:12px; font-weight:500; fill:#3C3489; text-anchor:middle; dominant-baseline:central; }
-.fts { font-family:inherit; font-size:10px; fill:#185FA5; text-anchor:middle; dominant-baseline:central; }
-.ftsa { font-family:inherit; font-size:10px; fill:#633806; text-anchor:middle; dominant-baseline:central; }
-.ftsg { font-family:inherit; font-size:10px; fill:#0F6E56; text-anchor:middle; dominant-baseline:central; }
-.ln { stroke:#9aa0a6; stroke-width:1; fill:none; marker-end:url(#fa); }
-.lnd { stroke:#9aa0a6; stroke-width:0.8; fill:none; stroke-dasharray:3 3; }
-.lbl { font-family:inherit; font-size:10px; fill:#5F5E5A; text-anchor:middle; }
-</style>
-</defs>
-
-<!-- LEGEND -->
-<rect x="20" y="14" width="12" height="10" rx="2" class="fp"/>
-<text x="37" y="20" class="lbl">פתיחה</text>
-<rect x="110" y="14" width="12" height="10" rx="2" class="fb"/>
-<text x="127" y="20" class="lbl">תהליך</text>
-<rect x="200" y="14" width="12" height="10" rx="2" class="fc"/>
-<text x="217" y="20" class="lbl">החלטה</text>
-<rect x="290" y="14" width="12" height="10" rx="2" class="fa2"/>
-<text x="307" y="20" class="lbl">פלט</text>
-<rect x="360" y="14" width="12" height="10" rx="2" class="fd"/>
-<text x="377" y="20" class="lbl">שגיאה / דחייה</text>
-
-<!-- ══ SECTION 1: פתיחת תיק ══ -->
-<text x="340" y="52" class="lbl" style="font-weight:600;fill:#3C3489;font-size:11px;">— שלב 1: פתיחת תיק ייבוא והצעת מחיר —</text>
-
-<!-- TRIGGER BOX -->
-<rect x="220" y="62" width="240" height="40" rx="6" class="fp"/>
-<text x="340" y="82" class="ftp">פתיחת תיק ייבוא חדש</text>
-<line x1="340" y1="102" x2="340" y2="122" class="ln"/>
-
-<!-- לקוח מסחר / טבנואי מצלה -->
-<rect x="200" y="122" width="280" height="40" rx="6" class="fb"/>
-<text x="340" y="142" class="ftb">לקוח מסחר / טבנואי מצלה בקשה</text>
-<line x1="340" y1="162" x2="340" y2="182" class="ln"/>
-
-<!-- פנגינה יותר משנה אל הלקוח -->
-<rect x="200" y="182" width="280" height="40" rx="6" class="fb"/>
-<text x="340" y="202" class="ftb">בדיקת זמינות סחורה אל הלקוח</text>
-<line x1="340" y1="222" x2="340" y2="242" class="ln"/>
-
-<!-- DECISION: בדיקת מלאי -->
-<rect x="240" y="242" width="200" height="40" rx="6" class="fc"/>
-<text x="340" y="262" class="fta">בדיקת מלאי</text>
-
-<!-- יש מלאי — right -->
-<line x1="440" y1="262" x2="490" y2="262" class="ln"/>
-<text x="465" y="256" class="lbl">יש מלאי</text>
-<rect x="490" y="242" width="130" height="40" rx="6" class="fa2"/>
-<text x="555" y="262" class="ftg">יש מלאי</text>
-
-<!-- אין מלאי — left -->
-<line x1="240" y1="262" x2="170" y2="262" class="ln"/>
-<text x="205" y="256" class="lbl">אין מלאי</text>
-<rect x="40" y="242" width="130" height="40" rx="6" class="fd"/>
-<text x="105" y="262" class="ftr">אין מלאי</text>
-
-<!-- main flow down -->
-<line x1="340" y1="282" x2="340" y2="302" class="ln"/>
-
-<!-- אופציה 1 — פונים לספק -->
-<rect x="190" y="302" width="300" height="52" rx="6" class="fc"/>
-<text x="340" y="320" class="fta">אופציה 1 — פונים לספק</text>
-<text x="340" y="338" class="ftsa">להצעת מחיר + בדיקת אפשרות פנימי</text>
-<line x1="340" y1="354" x2="340" y2="374" class="ln"/>
-
-<!-- right from יש מלאי: נסלת ללקוח -->
-<line x1="555" y1="282" x2="555" y2="302" class="ln"/>
-<rect x="490" y="302" width="130" height="40" rx="6" class="fb"/>
-<text x="555" y="322" class="ftb">נסלת ללקוח</text>
-<line x1="555" y1="342" x2="555" y2="362" class="ln"/>
-<rect x="480" y="362" width="150" height="40" rx="6" class="fc"/>
-<text x="555" y="382" class="fta">בדיקת מלאי שוב</text>
-
-<!-- left branch: לבדוק בהיסטוריה -->
-<line x1="105" y1="282" x2="105" y2="302" class="ln"/>
-<rect x="20" y="302" width="170" height="80" rx="6" class="fc"/>
-<text x="105" y="322" class="fta">לבדוק בהיסטוריה</text>
-<text x="105" y="338" class="ftsa">גברנו חלק זה?</text>
-<text x="105" y="354" class="ftsa">בדיקת ובן — מחמור</text>
-<text x="105" y="370" class="ftsa">האם מחיר עלה?</text>
-
-<line x1="340" y1="374" x2="340" y2="394" class="ln"/>
-
-<!-- רבס מקבלים הצעות -->
-<rect x="190" y="394" width="300" height="40" rx="6" class="fb"/>
-<text x="340" y="414" class="ftb">רבס מקבלים את הצעות המחיר</text>
-<line x1="340" y1="434" x2="340" y2="454" class="ln"/>
-
-<!-- יש מלאי מחשב × יחידות -->
-<rect x="200" y="454" width="280" height="40" rx="6" class="fc"/>
-<text x="340" y="474" class="fta">יש מלאי מחשב × יחידות?</text>
-
-<!-- מוציאה לו מהמלאי — right -->
-<line x1="480" y1="474" x2="530" y2="474" class="ln"/>
-<text x="505" y="468" class="lbl">יש מלאי</text>
-<rect x="530" y="454" width="130" height="40" rx="6" class="fa2"/>
-<text x="595" y="474" class="ftg">מוציאה מהמלאי</text>
-
-<!-- בכמה יש — left -->
-<line x1="200" y1="474" x2="150" y2="474" class="ln"/>
-<text x="175" y="468" class="lbl">יש מלאי</text>
-<rect x="20" y="454" width="130" height="40" rx="6" class="fc"/>
-<text x="85" y="474" class="fta">בכמה יש במלאי?</text>
-
-<line x1="340" y1="494" x2="340" y2="514" class="ln"/>
-
-<!-- מבקשת הזמנת רבס -->
-<rect x="190" y="514" width="300" height="40" rx="6" class="fb"/>
-<text x="340" y="534" class="ftb">מבקשת הזמנת רבס</text>
-<line x1="340" y1="554" x2="340" y2="574" class="ln"/>
-
-<!-- מגיע, שורים, מחיירים — החלטה -->
-<rect x="200" y="574" width="280" height="52" rx="6" class="fc"/>
-<text x="340" y="592" class="fta">מגיע, שורים, מחיירים</text>
-<text x="340" y="610" class="ftsa">בכמה את הטקסט</text>
-<line x1="340" y1="626" x2="340" y2="646" class="ln"/>
-
-<!-- שיירי הצעת מחיר ללקוח -->
-<rect x="180" y="646" width="240" height="52" rx="6" class="fb"/>
-<text x="300" y="666" class="ftb">שיירי הצעת מחיר</text>
-<text x="300" y="683" class="fts">ללקוח במייל</text>
-
-<!-- לא מאשר — right -->
-<line x1="420" y1="672" x2="470" y2="672" class="ln"/>
-<text x="445" y="666" class="lbl">לא מאשר</text>
-<rect x="470" y="652" width="120" height="40" rx="6" class="fd"/>
-<text x="530" y="672" class="ftr">לא מאשר</text>
-
-<line x1="300" y1="698" x2="300" y2="718" class="ln"/>
-
-<!-- מאפר הצעת מחיר לקוח -->
-<rect x="180" y="718" width="240" height="52" rx="6" class="fc"/>
-<text x="300" y="738" class="fta">מאפר / פוגרת</text>
-<text x="300" y="755" class="ftsa">הצעת מחיר לקוח</text>
-<line x1="300" y1="770" x2="300" y2="790" class="ln"/>
-
-<!-- two sub-branches -->
-<!-- left: אישור לא ראות -->
-<line x1="260" y1="790" x2="180" y2="790" class="lnd"/>
-<line x1="180" y1="790" x2="180" y2="810" class="ln"/>
-<rect x="60" y="810" width="240" height="52" rx="6" class="fb"/>
-<text x="180" y="830" class="ftb">אישור לא ראות (מגיע בטוח)</text>
-<text x="180" y="847" class="fts">בצלות פעם חדשה</text>
-
-<!-- right: אישור לא דחוי -->
-<line x1="340" y1="790" x2="420" y2="790" class="lnd"/>
-<line x1="420" y1="790" x2="420" y2="810" class="ln"/>
-<rect x="340" y="810" width="160" height="52" rx="6" class="fb"/>
-<text x="420" y="830" class="ftb">אישור לא דחוי</text>
-<text x="420" y="847" class="fts">בצלות פעם חדשה</text>
-
-<!-- center: פוגרת את התיק -->
-<line x1="300" y1="790" x2="300" y2="810" class="ln"/>
-<rect x="200" y="810" width="200" height="40" rx="6" class="fa2"/>
-<text x="300" y="830" class="ftg">פוגרת את התיק</text>
-<line x1="300" y1="850" x2="300" y2="870" class="ln"/>
-
-<!-- ══ SEPARATOR ══ -->
-<line x1="40" y1="880" x2="640" y2="880" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
-<text x="340" y="876" class="lbl" style="fill:#888780;font-weight:600;">— שלב 2: הוצאת הזמנת רכש —</text>
-
-<!-- מוציאים הזמנת רבס אצלינו -->
-<line x1="300" y1="888" x2="300" y2="906" class="ln"/>
-<rect x="140" y="906" width="320" height="40" rx="6" class="fb"/>
-<text x="300" y="926" class="ftb">מוציאים הזמנת רבס אצלינו</text>
-<line x1="300" y1="946" x2="300" y2="966" class="ln"/>
-
-<!-- מעדכנים פנינים -->
-<rect x="60" y="966" width="480" height="80" rx="6" class="fb"/>
-<text x="300" y="986" class="ftb">מעדכנים פנינים — (מי שמן / מי מעדכן)</text>
-<text x="300" y="1002" class="fts">מעדכן את ההזמנה — מספר הצעת מחיר</text>
-<text x="300" y="1016" class="fts">מחיר רכישה, כיצד החישוב, האם זה dbl או גרנד ×</text>
-<text x="300" y="1030" class="fts">זה dbl גרנד × / מחיר או גרנד ×</text>
-<line x1="300" y1="1046" x2="300" y2="1066" class="ln"/>
-
-<!-- מעדכנים את הכל בנגד (אקסל) -->
-<rect x="60" y="1066" width="480" height="110" rx="6" class="fb"/>
-<text x="300" y="1086" class="ftb">מעדכנים את הכל בנגד (אקסל)</text>
-<text x="300" y="1102" class="fts">כל שורה מכילה את כל הנתונים:</text>
-<text x="300" y="1116" class="fts">מספר תיק · מספר אספקה · מספר dbl · מספר הזמנה</text>
-<text x="300" y="1130" class="fts">מחיר סוגים · תאריך הזמנה · תאריך תשלום</text>
-<text x="300" y="1144" class="fts">מספר תשלום · תאריך הגעה · תאריך חשבוניות</text>
-<text x="300" y="1158" class="fts">שיהיה פריטים מפות פריטים</text>
-
-<!-- right arrow from this block -->
-<line x1="540" y1="1121" x2="590" y2="1121" class="ln"/>
-<rect x="590" y="1101" width="78" height="40" rx="6" class="fa2"/>
-<text x="629" y="1121" class="ftg">מפציאים הדרפסה</text>
-
-<line x1="300" y1="1176" x2="300" y2="1196" class="ln"/>
-
-<!-- רבס סיימה עבודה -->
-<rect x="140" y="1196" width="320" height="40" rx="6" class="fb"/>
-<text x="300" y="1216" class="ftb">רבס סיימה עבודה, מעבירה למחן</text>
-<line x1="300" y1="1236" x2="300" y2="1256" class="ln"/>
-
-<!-- מוחים תיק ללקוח -->
-<rect x="160" y="1256" width="280" height="40" rx="6" class="fa2"/>
-<text x="300" y="1276" class="ftg">מוחים תיק ללקוח</text>
-<line x1="300" y1="1296" x2="300" y2="1316" class="ln"/>
-
-<!-- ══ SEPARATOR ══ -->
-<line x1="40" y1="1320" x2="640" y2="1320" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
-<text x="340" y="1316" class="lbl" style="fill:#888780;font-weight:600;">— שלב 3: מנלה שיובא / קליטה —</text>
-
-<!-- TWO COLUMNS -->
-<!-- left col: מנלה שיובא -->
-<line x1="180" y1="1328" x2="180" y2="1348" class="ln"/>
-<rect x="20" y="1348" width="320" height="80" rx="6" class="fb"/>
-<text x="180" y="1368" class="ftb">מנלה שיובא — לטעות</text>
-<text x="180" y="1384" class="fts">לוקח נתונים מאקסל הרבס</text>
-<text x="180" y="1400" class="fts">ומפותח ואסקל משלה</text>
-
-<!-- right col: מבציאים הדרפסה -->
-<line x1="490" y1="1276" x2="490" y2="1348" class="ln"/>
-<rect x="360" y="1348" width="300" height="80" rx="6" class="fa2"/>
-<text x="510" y="1368" class="ftg">מבציאים הדרפסה לכל הישתות</text>
-<text x="510" y="1384" class="ftsg">של הישתות — בחשבוניות מחדש</text>
-<text x="510" y="1400" class="ftsg">לקוח, תאריך חשבונית × הזמנה</text>
-
-<line x1="180" y1="1428" x2="180" y2="1448" class="ln"/>
-
-<!-- נוחנים לו מספר תיק -->
-<rect x="40" y="1448" width="280" height="52" rx="6" class="fb"/>
-<text x="180" y="1468" class="ftb">נוחנים לו מספר תיק</text>
-<text x="180" y="1485" class="fts">שאותו היא מתחילה לעבוד על ההזמנה</text>
-<line x1="180" y1="1500" x2="180" y2="1520" class="ln"/>
-
-<!-- מדפוסה ניירת -->
-<rect x="40" y="1520" width="280" height="40" rx="6" class="fb"/>
-<text x="180" y="1540" class="ftb">מדפוסה ניירת — תלי במי עממה</text>
-<line x1="180" y1="1560" x2="180" y2="1580" class="ln"/>
-
-<!-- טבלה של ייבוא -->
-<rect x="20" y="1580" width="320" height="110" rx="6" class="fb"/>
-<text x="180" y="1600" class="ftb">טבלה של ייבוא — מעדכנים</text>
-<text x="180" y="1616" class="fts">מספר תיק · מספר אספקה · שם ספק · מטבע</text>
-<text x="180" y="1630" class="fts">מחיר dbl (פרי בכל תמונה)</text>
-<text x="180" y="1644" class="fts">פרי הכל לחשבונות</text>
-<text x="180" y="1658" class="fts">(נכול בסיסי חשבונות)</text>
-<text x="180" y="1673" class="fts">× ביכול לרכות פריטים</text>
-
-<!-- right col continues -->
-<line x1="510" y1="1428" x2="510" y2="1448" class="ln"/>
-<rect x="360" y="1448" width="300" height="40" rx="6" class="fb"/>
-<text x="510" y="1468" class="ftb">מורידים למחסן</text>
-<line x1="510" y1="1488" x2="510" y2="1508" class="ln"/>
-
-<!-- התיק מגיע למחסן -->
-<rect x="360" y="1508" width="300" height="40" rx="6" class="fc"/>
-<text x="510" y="1528" class="fta">התיק מגיע למחסן</text>
-
-<!-- בדיקים אם הזמנה הגיעה -->
-<line x1="360" y1="1528" x2="300" y2="1528" class="ln"/>
-<text x="330" y="1522" class="lbl">לא הגיעה</text>
-<rect x="200" y="1508" width="100" height="40" rx="6" class="fc"/>
-<text x="250" y="1528" class="fta">לא הגיעה?</text>
-
-<line x1="660" y1="1528" x2="630" y2="1528" class="lnd"/>
-<rect x="575" y="1558" width="100" height="40" rx="6" class="fb"/>
-<text x="625" y="1578" class="ftb">מחביאים שותגיע</text>
-<line x1="625" y1="1548" x2="625" y2="1558" class="ln"/>
-
-<line x1="510" y1="1548" x2="510" y2="1568" class="ln"/>
-
-<!-- ══ SEPARATOR ══ -->
-<line x1="40" y1="1700" x2="640" y2="1700" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
-<text x="340" y="1696" class="lbl" style="fill:#888780;font-weight:600;">— שלב 4: ניתוח תיק ואישור מנהל —</text>
-
-<!-- מוציאים הזמנת רבס אצלינו AGAIN -->
-<rect x="100" y="1710" width="460" height="40" rx="6" class="fb"/>
-<text x="330" y="1730" class="ftb">מוציאים הזמנת רבס אצלינו</text>
-<line x1="330" y1="1750" x2="330" y2="1770" class="ln"/>
-
-<!-- מערכבות את כל הצבאות מחדש -->
-<rect x="100" y="1770" width="460" height="110" rx="6" class="fa2"/>
-<text x="330" y="1792" class="ftg">מערכבות את כל הצבאות מחדש —</text>
-<text x="330" y="1808" class="ftsg">ברחתם לחשבוניות לקוח, חארבי דביאן</text>
-<text x="330" y="1824" class="ftsg">יציאה של לקוח, חשבוניות נוספות (מגידה ר"ח)</text>
-<text x="330" y="1840" class="ftsg">מגידות כלייה × מגידה נוספות</text>
-<text x="330" y="1856" class="ftsg">פוגרת את התיק</text>
-<line x1="330" y1="1880" x2="330" y2="1900" class="ln"/>
-
-<!-- התיק עובר לליייד -->
-<rect x="140" y="1900" width="380" height="40" rx="6" class="fb"/>
-<text x="330" y="1920" class="ftb">התיק עובר לליייד</text>
-
-<!-- right: פותח את התיק -->
-<line x1="520" y1="1920" x2="570" y2="1920" class="ln"/>
-<rect x="570" y="1900" width="100" height="40" rx="6" class="fa2"/>
-<text x="620" y="1920" class="ftg">פותח את התיק</text>
-
-<line x1="330" y1="1940" x2="330" y2="1960" class="ln"/>
-
-<!-- חשבוניות ספק מול חשבוניות ללקוח -->
-<rect x="120" y="1960" width="420" height="40" rx="6" class="fb"/>
-<text x="330" y="1980" class="ftb">חשבוניות ספק מול חשבוניות ללקוח</text>
-<line x1="330" y1="2000" x2="330" y2="2020" class="ln"/>
-
-<!-- מאושר או לא מאושר -->
-<rect x="190" y="2020" width="280" height="40" rx="6" class="fc"/>
-<text x="330" y="2040" class="fta">מאושר או לא מאושר?</text>
-<line x1="330" y1="2060" x2="330" y2="2080" class="ln"/>
-
-<!-- נותן הערות לספק לבאה -->
-<rect x="120" y="2080" width="420" height="52" rx="6" class="fb"/>
-<text x="330" y="2100" class="ftb">נותן הערות לספק לבאה</text>
-<text x="330" y="2117" class="fts">בדבר המחמור בין אם זה לספק לסנוך לממוצע עצמו</text>
-<line x1="330" y1="2132" x2="330" y2="2152" class="ln"/>
-
-<!-- התיק חוזר למנחן -->
-<rect x="160" y="2152" width="340" height="40" rx="6" class="fb"/>
-<text x="330" y="2172" class="ftb">התיק חוזר למנחן</text>
-<line x1="330" y1="2192" x2="330" y2="2212" class="ln"/>
-
-<!-- מתחיל שלב המיטול -->
-<rect x="180" y="2212" width="300" height="40" rx="6" class="fa2"/>
-<text x="330" y="2232" class="ftg">מתחיל שלב המיטול</text>
-<line x1="330" y1="2252" x2="330" y2="2272" class="ln"/>
-
-<!-- ══ SEPARATOR ══ -->
-<line x1="40" y1="2270" x2="640" y2="2270" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
-<text x="340" y="2266" class="lbl" style="fill:#888780;font-weight:600;">— שלב 5: ייצוא מסמכים וסגירה —</text>
-
-<!-- THREE COPIES -->
-<!-- עותק ראשון -->
-<line x1="210" y1="2278" x2="210" y2="2296" class="ln"/>
-<rect x="20" y="2296" width="240" height="52" rx="6" class="fb"/>
-<text x="140" y="2316" class="ftb">עותק ראשון</text>
-<text x="140" y="2333" class="fts">עם חשבון מקור ספק</text>
-
-<!-- עותק שני -->
-<line x1="330" y1="2278" x2="330" y2="2296" class="ln"/>
-<rect x="270" y="2296" width="240" height="52" rx="6" class="fb"/>
-<text x="390" y="2316" class="ftb">עותק שני — חשבון מכולה</text>
-<text x="390" y="2333" class="fts">מקור ליסט בסמז יצוא</text>
-
-<!-- עותק שלישי -->
-<line x1="560" y1="2278" x2="560" y2="2296" class="ln"/>
-<rect x="500" y="2296" width="140" height="52" rx="6" class="fb"/>
-<text x="570" y="2316" class="ftb">עותק שלישי</text>
-<text x="570" y="2333" class="fts">חשבוניות שלח ספק</text>
-
-<!-- הולך לקלפר תשלום ספקים — right -->
-<line x1="640" y1="2322" x2="660" y2="2322" class="lnd"/>
-
-<!-- all three arrows down to final merge -->
-<line x1="140" y1="2348" x2="140" y2="2380" class="lnd"/>
-<line x1="390" y1="2348" x2="390" y2="2380" class="lnd"/>
-<line x1="570" y1="2348" x2="570" y2="2380" class="lnd"/>
-<line x1="140" y1="2380" x2="570" y2="2380" stroke="#9aa0a6" stroke-width="1" fill="none"/>
-<line x1="340" y1="2380" x2="340" y2="2400" class="ln"/>
-
-<!-- מתיים בקלפר -->
-<rect x="180" y="2400" width="320" height="40" rx="6" class="fb"/>
-<text x="340" y="2420" class="ftb">מתיים בקלפר</text>
-<line x1="340" y1="2440" x2="340" y2="2460" class="ln"/>
-
-<!-- חשבוניות ספק מול חשבוניות ללקוח -->
-<rect x="120" y="2460" width="440" height="40" rx="6" class="fb"/>
-<text x="340" y="2480" class="ftb">חשבוניות ספק מול חשבוניות ללקוח</text>
-<line x1="340" y1="2500" x2="340" y2="2520" class="ln"/>
-
-<!-- מאושר -->
-<rect x="190" y="2520" width="300" height="40" rx="6" class="fc"/>
-<text x="340" y="2540" class="fta">מאושר?</text>
-
-<!-- עותק ראשון — חשבון ספק + מאושרת לתשלום -->
-<line x1="190" y1="2540" x2="140" y2="2540" class="ln"/>
-<text x="165" y="2534" class="lbl">כן</text>
-<rect x="20" y="2520" width="120" height="40" rx="6" class="fa2"/>
-<text x="80" y="2540" class="ftg">עותק ראשון — עם חשבון מקור ספק מאושרת לתשלום</text>
-
-<!-- חסר חלק — right -->
-<line x1="490" y1="2540" x2="540" y2="2540" class="ln"/>
-<text x="515" y="2534" class="lbl">לא</text>
-<rect x="540" y="2520" width="120" height="40" rx="6" class="fd"/>
-<text x="600" y="2540" class="ftr">חסר חלק</text>
-
-<line x1="340" y1="2560" x2="340" y2="2580" class="ln"/>
-
-<!-- הולך לקלפר תשלום ספקים -->
-<rect x="140" y="2580" width="400" height="40" rx="6" class="fb"/>
-<text x="340" y="2600" class="ftb">הולך לקלפר תשלום ספקים</text>
-<line x1="340" y1="2620" x2="340" y2="2640" class="ln"/>
-
-<!-- חשבוניות שלח ספק ספקים + לוקחת לקלפר תשלום ספקים -->
-<rect x="80" y="2640" width="520" height="52" rx="6" class="fa2"/>
-<text x="340" y="2660" class="ftg">חשבוניות שלח ספק ספקים</text>
-<text x="340" y="2677" class="ftsg">לוקחת לקלפר תשלום ספקים + לוקחת לקלפר תשלום חשבוניות</text>
-
-<line x1="340" y1="2692" x2="340" y2="2712" class="ln"/>
-
-<!-- left: מתייקב בקלפר / right: הולך לקלפר תשלום פקידים -->
-<line x1="280" y1="2712" x2="200" y2="2712" class="ln"/>
-<text x="240" y="2706" class="lbl">תשלום לספק</text>
-<rect x="20" y="2692" width="180" height="40" rx="6" class="fb"/>
-<text x="110" y="2712" class="ftb">מתייקב בקלפר</text>
-
-<line x1="400" y1="2712" x2="480" y2="2712" class="ln"/>
-<text x="440" y="2706" class="lbl">חשבוניות לקוח</text>
-<rect x="480" y="2692" width="180" height="40" rx="6" class="fb"/>
-<text x="570" y="2712" class="ftb">הולך לקלפר תשלום פקידים</text>
-
-<line x1="340" y1="2732" x2="340" y2="2752" class="ln"/>
-
-<!-- FINAL: צריך את המסמך שמור ליציאה -->
-<rect x="160" y="2752" width="360" height="44" rx="8" class="fp"/>
-<text x="340" y="2774" class="ftp">צריך את המסמך שמור ליציאה</text>
-    `;
-  }
-})();
-
-// ══════════════════════════════════════════════
-//  CHAPTER 26 — מפת דרכים ו-MVP
-// ══════════════════════════════════════════════
-document.getElementById('chapter_roadmap').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">20c</div>
-  <h1 class="chapter-title">מפת דרכים ו-MVP Boundaries</h1>
-  <p class="chapter-desc">חלוקת יכולות המערכת לשני שלבי פיתוח — שלב 1 (MVP לעלייה לאוויר) ושלב 2 (Phase Future) — לאפשר רציפות עסקית ועלייה מהירה לאוויר.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">מטריצת שלבי יישום תכונות המערכת</div>
-  <div class="info-box gold">
-    <strong>עיקרון:</strong> יכולות ה-MVP נבחרו לפי קריטיות עסקית ותפעולית מיידית. יכולות שלב 2 יוטמעו לאחר יציבות ה-MVP ואימות תהליכי העבודה.
-  </div>
-  <table class="spec-table" style="margin-top:16px;">
-    <thead>
-      <tr><th>מודול / יכולת מערכתית</th><th style="text-align:center;">שלב 1 MVP</th><th style="text-align:center;">שלב 2 עתידי</th><th>דגש עסקי / תפעולי</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>ניהול שדות וישויות (קסטומיזציה)</strong></td>
-        <td style="text-align:center;"><span class="tag tag-green">✓</span></td>
-        <td style="text-align:center;">—</td>
-        <td>חובה — גמישות מלאה להתאמת שדות לטבלאות SAP</td>
-      </tr>
-      <tr>
-        <td><strong>ניהול הרשאות ותפקידים</strong></td>
-        <td style="text-align:center;"><span class="tag tag-green">✓</span></td>
-        <td style="text-align:center;">—</td>
-        <td>הגנה על נתונים פיננסיים רגישים ואובליגו מיום א'</td>
-      </tr>
-      <tr>
-        <td><strong>ערוצי תקשורת — דוא"ל (Google / MS)</strong></td>
-        <td style="text-align:center;"><span class="tag tag-green">✓</span></td>
-        <td style="text-align:center;">—</td>
-        <td>סנכרון תיבות ומיילים שוטפים — מכירות ורכש</td>
-      </tr>
-      <tr>
-        <td><strong>ערוצי תקשורת — WhatsApp רשמי ובוטים</strong></td>
-        <td style="text-align:center;">—</td>
-        <td style="text-align:center;"><span class="tag tag-blue">Phase 2</span></td>
-        <td>שלב א' מבוסס מיילים; WhatsApp רשמי יוטמע בהמשך</td>
-      </tr>
-      <tr>
-        <td><strong>מנוע אוטומציות וטריגרים מבוססי מידע</strong></td>
-        <td style="text-align:center;"><span class="tag tag-green">✓</span></td>
-        <td style="text-align:center;">—</td>
-        <td>קריטי לגבייה, תמחור ושינויי סטטוס תיק ייבוא</td>
-      </tr>
-      <tr>
-        <td><strong>טפסים אינטרנטיים עצמאיים (Webforms)</strong></td>
-        <td style="text-align:center;">—</td>
-        <td style="text-align:center;"><span class="tag tag-blue">Phase 2</span></td>
-        <td>הקמת לידים מטפסים חיצוניים — שלב עתידי</td>
-      </tr>
-      <tr>
-        <td><strong>תבניות חיתום דיגיטלי והפקת PDF</strong></td>
-        <td style="text-align:center;"><span class="tag tag-green">✓</span></td>
-        <td style="text-align:center;">—</td>
-        <td>חובה לאישור הצעות מחיר ושידורן המיידי ל-SAP</td>
-      </tr>
-      <tr>
-        <td><strong>מחולל עיצוב מסמכים (הצעות/רכש)</strong></td>
-        <td style="text-align:center;"><span class="tag tag-green">✓</span></td>
-        <td style="text-align:center;">—</td>
-        <td>חובה — הפקת מסמכים מעוצבים עם לוגו וטבלאות דינמיות</td>
-      </tr>
-      <tr>
-        <td><strong>יומן פגישות, משימות וניהול פרויקטים</strong></td>
-        <td style="text-align:center;"><span class="tag tag-gold">משימות בסיסי</span></td>
-        <td style="text-align:center;"><span class="tag tag-blue">גאנט + PM</span></td>
-        <td>מודול משימות בסיסי ב-MVP; ניהול פרויקטים וגאנט — שלב 2</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">סיכום כמותי</div>
-  <div class="two-col">
-    <div class="spec-card" style="border-top:2px solid #50C878;">
-      <div class="spec-card-title" style="color:#50C878;">שלב 1 — MVP</div>
-      <div class="spec-card-body" style="margin-top:8px;font-size:13px;">
-        <strong style="font-size:22px;color:#50C878;font-family:'Cormorant Garamond',serif;">6</strong> מודולים מלאים<br>
-        <strong style="font-size:22px;color:#50C878;font-family:'Cormorant Garamond',serif;">+1</strong> מודול חלקי (משימות בסיסי)
-      </div>
-    </div>
-    <div class="spec-card" style="border-top:2px solid #7EB8FF;">
-      <div class="spec-card-title" style="color:#7EB8FF;">שלב 2 — Future Phase</div>
-      <div class="spec-card-body" style="margin-top:8px;font-size:13px;">
-        <strong style="font-size:22px;color:#7EB8FF;font-family:'Cormorant Garamond',serif;">3</strong> מודולים / יכולות<br>
-        WhatsApp · Webforms · PM מלא
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 27 — שדות, ישויות והתאמה אישית
-// ══════════════════════════════════════════════
-document.getElementById('chapter_customization').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">20d</div>
-  <h1 class="chapter-title">ניהול שדות, ישויות והתאמה אישית</h1>
-  <p class="chapter-desc">מנהל המערכת (Admin) יוכל לשלוט במלואו על מבנה הנתונים בכל מודול ובכל שלב — ללא צורך בכתיבת קוד.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">א — ארכיטקטורת סוגי שדות (Field Types)</div>
-  <table class="spec-table">
-    <thead><tr><th>#</th><th>סוג שדה</th><th>תיאור ושימוש ב-CRM</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><span class="tag tag-gold">1</span></td>
-        <td><strong>טקסט</strong> — Text / Long Text</td>
-        <td>שדות קצרים לשמות ושדות ארוכים להערות ותיאורים. Long Text = שדה Append-Only בתיק ייבוא.</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">2</span></td>
-        <td><strong>מטבע</strong> — Currency</td>
-        <td>שדות פיננסיים עם סימון סוג מטבע (ILS / EUR) ודיוק עד 2 ספרות אחרי הנקודה. שדה <code>Balance_Due_To_Pay</code> הוא דוגמה.</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">3</span></td>
-        <td><strong>ערך מספרי</strong> — Number / Integer / Decimal</td>
-        <td>שדות לכמויות, פקטורים ומכפילי סיווג (1 / 2 / 3 → ×2, ×3, ×2.4).</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">4</span></td>
-        <td><strong>תאריך ושעה</strong> — Date & Time</td>
-        <td>בורר תאריכים (Calendar Picker) + חותמות זמן לשלבי עבודה (ETA, תאריך פירעון, סגירת תיק).</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">5</span></td>
-        <td><strong>בחירה מרשימה</strong> — Dropdown / Picklist</td>
-        <td>רשימת ערכים סגורה. דוגמה: 5 תחנות תיק ייבוא — בניית תיק / שילוח / קליטה / מחסן / אישור מנהל.</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">6</span></td>
-        <td><strong>בחירה מרובה</strong> — Multi-Select Picklist</td>
-        <td>בחירת מספר ערכים מרשימה. דוגמה: ערוצי תקשורת מועדפים ללקוח (מייל, WhatsApp, טלפון).</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">7</span></td>
-        <td><strong>ערך מחושב</strong> — Formula / Calculated Field</td>
-        <td>חישוב דינמי מבוסס שדות אחרים. דוגמה: <code>מחיר בסיס × מכפיל קבוצה</code>. ניתן לביצוע גם דרך מנוע האוטומציות.</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ב — מאפייני שדה והתאמת ממשק (UI Customization)</div>
-  <div class="spec-card" style="margin-bottom:12px; border-right:3px solid var(--gold);">
-    <div class="spec-card-title">🔴 שדות חובה (Required Fields)</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      מנהל המערכת מגדיר כל שדה כ"חובה" בשלבים ספציפיים של התהליך העסקי.<br>
-      דוגמה: שדה <code>ח"פ</code> הוא חובה בשלב מעבר לקוח מ"טיוטה" ל"פעיל".<br>
-      <strong style="color:#FF8080;">רשומה לא תישמר ללא מילוי שדות חובה.</strong>
-    </div>
-  </div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">📊 תצוגות טבלאיות (Views / Grids)</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      הגדרת אילו שדות ייכללו בעמודות תצוגות הרשימה המרוכזות של המשתמשים. כל תפקיד יכול לקבל Grid מותאם.
-    </div>
-  </div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">🏷️ שינוי תוויות (Relabeling)</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      שינוי שמות שדות, מודולים, כותרות, תתי-כותרות וכפתורי מערכת לפי הטרמינולוגיה של זומריך.<br>
-      דוגמה: "Opportunity" → "הצעת מחיר", "Account" → "כרטסת לקוח".
-    </div>
-  </div>
-  <div class="spec-card">
-    <div class="spec-card-title">🖱️ גרירה ושינוי מיקום (Drag & Drop Layout)</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      שינוי מיקום שדות בתוך הטופס (מערך המסך) לנוחיות המשתמשים וייעול זמני הקלדה.
-    </div>
-  </div>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 28 — הרשאות, אבטחה ותפקידים
-// ══════════════════════════════════════════════
-document.getElementById('chapter_rbac').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">20e</div>
-  <h1 class="chapter-title">הרשאות, אבטחה ותפקידים (RBAC)</h1>
-  <p class="chapter-desc">מודול הרשאות קשיח מבוסס תפקידים (Role-Based Access Control) להגנה על מידע עסקי רגיש — פיננסי, לוגיסטי ולקוחות.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">א — רמות הרשאה ברמת ישות (Entity-Level Permissions)</div>
-  <div class="info-box gold">
-    תפקידים מוגדרים: <strong>מנכ"ל, מנהל מכירות, סוכן שטח, מחסנאי, הנהלת חשבונות</strong> — לכל תפקיד פרופיל הרשאות קשיח לכל מודול ותת-מודול.
-  </div>
-  <table class="spec-table" style="margin-top:16px;">
-    <thead><tr><th>רמת הרשאה</th><th>תיאור</th><th>דוגמה</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><span class="tag tag-white">Read-Only</span><br>צפייה בלבד</td>
-        <td>המשתמש רואה נתונים — כפתור עריכה חסום.</td>
-        <td>סוכן מכירות צופה באובליגו של הלקוח ללא אפשרות שינוי</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-green">Full Control — CRUD</span><br>ניהול מלא</td>
-        <td>Create · Read · Update · Delete — הרשאה מלאה.</td>
-        <td>מנהל מכירות מנהל כרטסות לקוח וספקים במלואן</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">Modify Only</span><br>עדכון חלקי</td>
-        <td>עדכון שדות ספציפיים בלבד — ללא מחיקה ושדות ליבה.</td>
-        <td>מחסנאי מוסיף הערות שורה בתיק ייבוא ללא גישה לפיננסים</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ב — הרשאות פונקציונליות מיוחדות</div>
-  <div class="spec-card" style="margin-bottom:12px; border-right:3px solid #FF8080;">
-    <div class="spec-card-title">📤 ייבוא וייצוא נתונים</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      הגבלה קשיחה של היכולת לייצא דוחות / רשימות לקוחות / פריטים לקובצי Excel/CSV.<br>
-      <strong style="color:#FF8080;">הרשאה זו תינתן להנהלה בלבד</strong> — למניעת זליגת מידע מהארגון.
-    </div>
-  </div>
-  <div class="spec-card">
-    <div class="spec-card-title">📎 ניהול וצפייה במסמכים</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      הרשאות ספציפיות לקריאה, העלאה או מחיקה של קבצים ונספחים:<br>
-      שטרי מטען, חשבוניות ספק, טפסי חיתום — המשויכים לתיקי ייבוא ולכרטיסי לקוח.
-    </div>
-  </div>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">מטריצת הרשאות לפי תפקיד</div>
-  <table class="spec-table">
-    <thead>
-      <tr>
-        <th>מודול</th>
-        <th>מנכ"ל</th>
-        <th>מנהל מכירות</th>
-        <th>סוכן שטח</th>
-        <th>מחסנאי</th>
-        <th>כספים</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>כרטסת לקוח — נתוני ליבה</td><td><span class="tag tag-white">Read</span></td><td><span class="tag tag-green">CRUD</span></td><td><span class="tag tag-white">Read</span></td><td>—</td><td><span class="tag tag-green">CRUD</span></td></tr>
-      <tr><td>אובליגו ומסגרת אשראי</td><td><span class="tag tag-white">Read</span></td><td><span class="tag tag-white">Read</span></td><td><span class="tag tag-white">Read</span></td><td>—</td><td><span class="tag tag-green">CRUD</span></td></tr>
-      <tr><td>הצעות מחיר</td><td><span class="tag tag-gold">אישור</span></td><td><span class="tag tag-green">CRUD</span></td><td><span class="tag tag-green">CRUD</span></td><td>—</td><td><span class="tag tag-white">Read</span></td></tr>
-      <tr><td>תיק ייבוא — כותרת</td><td><span class="tag tag-gold">סגירה</span></td><td><span class="tag tag-white">Read</span></td><td><span class="tag tag-white">Read</span></td><td><span class="tag tag-gold">Modify</span></td><td><span class="tag tag-white">Read</span></td></tr>
-      <tr><td>תיק ייבוא — הערות שורה</td><td><span class="tag tag-white">Read</span></td><td><span class="tag tag-white">Read</span></td><td>—</td><td><span class="tag tag-green">CRUD</span></td><td>—</td></tr>
-      <tr><td>ייצוא נתונים ל-Excel</td><td><span class="tag tag-green">✓</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-red">✗</span></td><td><span class="tag tag-green">✓</span></td></tr>
-      <tr><td>ניהול מסמכים ונספחים</td><td><span class="tag tag-green">CRUD</span></td><td><span class="tag tag-green">CRUD</span></td><td><span class="tag tag-white">Read</span></td><td><span class="tag tag-gold">Upload</span></td><td><span class="tag tag-white">Read</span></td></tr>
-    </tbody>
-  </table>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 29 — ערוצי תקשורת
-// ══════════════════════════════════════════════
-document.getElementById('chapter_communications').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">20f</div>
-  <h1 class="chapter-title">ערוצי תקשורת ותקשורת ארגונית</h1>
-  <p class="chapter-desc">שתי שכבות תקשורת — שלב 1: דוא"ל מסונכרן עם Google / Microsoft. שלב 2: WhatsApp רשמי ובוטים.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">א — אינטגרציית דוא"ל (Google / Microsoft Sync) — שלב 1</div>
-  <div class="info-box gold">
-    <strong>שלב 1 — MVP:</strong> חיבור מלא של תיבות דוא"ל ארגוניות מבוססות <strong>Google Workspace</strong> או <strong>Microsoft 365</strong> ברמת המשתמש הבודד.
-  </div>
-  <div class="flow-steps" style="margin-top:14px;">
-    <div class="flow-step">
-      <div class="flow-step-num">①</div>
-      <div class="flow-step-content">
-        <div class="flow-step-title">תיעוד אוטומטי (Email Tracking)</div>
-        <div class="flow-step-desc">כל מייל יוצא / נכנס המזוהה מול כתובת לקוח או ספק — מתועד אוטומטית בציר הזמן (Timeline) של הכרטיס הרלוונטי ב-CRM.</div>
-      </div>
-      <div class="flow-step-tag"><span class="tag tag-gold">Auto-Log</span></div>
-    </div>
-    <div class="flow-step">
-      <div class="flow-step-num">②</div>
-      <div class="flow-step-content">
-        <div class="flow-step-title">ניהול יומנים (Calendar Integration)</div>
-        <div class="flow-step-desc">סנכרון דו-כיווני (Two-Way Sync) בין יומן ה-CRM ליומן Google / Outlook — יצירת פגישות, שליחת זימונים אוטומטיים וניהול התראות.</div>
-      </div>
-      <div class="flow-step-tag"><span class="tag tag-blue">Two-Way</span></div>
-    </div>
-  </div>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ב — ממשק WhatsApp רשמי ובוטים (WhatsApp Business API) — שלב 2</div>
-  <div class="info-box blue" style="margin-bottom:14px;">
-    <strong>שלב 2 — Future Phase:</strong> שלב א' יתבסס על מיילים. WhatsApp רשמי יוטמע לאחר יציבות ה-MVP.
-  </div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">💬 ערוץ התכתבות שוטף (Bidirectional Chat)</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      התכתבות סדירה (צ'אט דו-כיווני) פנים וחוץ ארגונית ישירות מתוך המערכת.<br>
-      <strong>היסטוריית הצ'אט</strong> נשמרת תחת כרטיס הלקוח / הספק לתיעוד מלא.
-    </div>
-  </div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">⚡ מנוע אוטומציות WhatsApp</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      טריגרים לשליחת הודעות תבניתיות (Template Messages) מבוססות WhatsApp ללקוחות קצה.<br>
-      דוגמה: תזכורת תשלום 5 ימים לפני פירעון — נשלחת ב-WhatsApp + מייל.
-    </div>
-  </div>
-  <div class="spec-card">
-    <div class="spec-card-title">🤖 ניהול בוט נושאי (Chatbot)</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      בניית עץ הודעות וניתוב פניות אוטומטי המגיב להודעות נכנסות לפי נושאים מוגדרים.<br>
-      דוגמה: לקוח שולח "סטטוס הזמנה" → הבוט מחזיר אוטומטית את סטטוס הזמנתו האחרונה.
-    </div>
-  </div>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 30 — אוטומציות, חיתום, PDF
-// ══════════════════════════════════════════════
-document.getElementById('chapter_automations_spec').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">20g</div>
-  <h1 class="chapter-title">אוטומציות, תבניות מסמכים וחיתום דיגיטלי</h1>
-  <p class="chapter-desc">מנוע חוקים עסקיים (Workflow Engine) מבוסס טריגרים (Event-Driven), מחולל מסמכים מעוצבים ומנגנון חיתום דיגיטלי מלא.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">א — ארכיטקטורת מנוע האוטומציות (Triggers & Actions)</div>
-  <table class="spec-table">
-    <thead><tr><th>#</th><th>סוג אוטומציה</th><th>תיאור</th><th>דוגמה</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><span class="tag tag-gold">1</span></td>
-        <td><strong>טריגרים מבוססי אירוע</strong></td>
-        <td>יצירת רשומה, עדכון רשומה, שינוי ערך בשדה — ברמת מודול בודד או חתך ריבוי מודולים מקושרים.</td>
-        <td>שינוי סטטוס תיק ייבוא → שליחת התראה למחסנאי</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">2</span></td>
-        <td><strong>הכלאת מידע (Concatenation)</strong></td>
-        <td>מיזוג ערכים ממספר שדות לכדי שדה ייחודי אחד.</td>
-        <td>[מספר תיק] + [שם ספק] + [ETA] → כותרת אחידה לתיק</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">3</span></td>
-        <td><strong>חישובים מתמטיים</strong></td>
-        <td>נוסחאות בזמן אמת + עדכון שדות חישוב ייעודיים.</td>
-        <td>מחיר בסיס × מכפיל → שדה CRM_Calculated_Sale_Price</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">4</span></td>
-        <td><strong>מענה והתראות</strong></td>
-        <td>שליחת הודעות, מיילים, עדכוני סטטוס — על סמך פרמטרים מוגדרים או חריגות בלוחות זמנים.</td>
-        <td>חריגת ETA → התראה דחופה למנהל תפעול</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ב — תבניות מסמכים וחיתום דיגיטלי (Document Builder & Digital Signature)</div>
-  <div class="spec-card" style="margin-bottom:12px; border-right:3px solid var(--gold);">
-    <div class="spec-card-title">🎨 מחולל עיצוב תבניות (Document Builder)</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      כלי לעיצוב תבניות מסמכים רשמיים — הצעות מחיר, הזמנות רכש.<br><br>
-      תמיכה ב:<br>
-      &nbsp;• אלמנטים גרפיים: לוגו, תמונות מוצר<br>
-      &nbsp;• בלוקים דינמיים: פרטי לקוח, תנאים משפטיים, הערות<br>
-      &nbsp;• <strong>טבלאות תמחור מורכבות</strong> עם שדות דינמיים מ-CRM
-    </div>
-  </div>
-  <div class="spec-card" style="margin-bottom:12px; border-right:3px solid #7EB8FF;">
-    <div class="spec-card-title">✍️ מנגנון חיתום דיגיטלי מלא</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      שליחת הצעת מחיר מעוצבת ישירות למייל / WhatsApp של הלקוח לחיתום דיגיטלי על גבי מסך המכשיר.<br><br>
-      <div class="flow-steps" style="margin-top:8px;">
-        <div class="flow-step"><div class="flow-step-num">1</div><div class="flow-step-content"><div class="flow-step-title">שליחת קישור מאובטח</div><div class="flow-step-desc">לקוח מקבל קישור ייחודי לחיתום דיגיטלי.</div></div></div>
-        <div class="flow-step"><div class="flow-step-num">2</div><div class="flow-step-content"><div class="flow-step-title">לכידת חתימה</div><div class="flow-step-desc">לקוח חותם על המסך — חתימה גרפית/דיגיטלית.</div></div></div>
-        <div class="flow-step"><div class="flow-step-num">3</div><div class="flow-step-content"><div class="flow-step-title">נעילת ההצעה</div><div class="flow-step-desc">ה-CRM נועל ההצעה + מפיק PDF חתום.</div></div></div>
-        <div class="flow-step"><div class="flow-step-num">4</div><div class="flow-step-content"><div class="flow-step-title">שמירה אוטומטית</div><div class="flow-step-desc">PDF נשמר תחת נספחי הלקוח ב-CRM + שידור ל-SAP.</div></div></div>
-      </div>
-    </div>
-  </div>
-  <div class="spec-card">
-    <div class="spec-card-title">🔒 ארכוב PDF קשיח</div>
-    <div class="spec-card-body" style="margin-top:8px;">
-      עם השלמת חיתום תקין:<br>
-      &nbsp;① המערכת נועלת ההצעה ל-Read-Only<br>
-      &nbsp;② מפיקה קובץ PDF חתום וסגור<br>
-      &nbsp;③ שומרת אוטומטית תחת רכיב הנספחים/מסמכים של הלקוח<br>
-      &nbsp;④ מפעילה טריגר שידור ל-SAP (ידני או Zero-Touch)
-    </div>
-  </div>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 31 — קטלוג תרחישי אוטומציה
-// ══════════════════════════════════════════════
-document.getElementById('chapter_usecases').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">20h</div>
-  <h1 class="chapter-title">קטלוג תרחישי אוטומציות נדרשים</h1>
-  <p class="chapter-desc">5 תרחישי אוטומציה ספציפיים שיוטמעו במערכת — שלב 1 בדוא"ל מעוצב, שלב 2 ב-WhatsApp.</p>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">תרחיש 1 — אוטומציית גבייה ותזרים מזומנים</div>
-  <div class="spec-card" style="border-right:3px solid #FF8080;">
-    <div class="spec-card-body" style="line-height:1.9;">
-      <div style="margin-bottom:10px;"><span class="tag tag-red">גבייה</span> <span class="tag tag-gold">שלב 1 — מייל</span> <span class="tag tag-blue">שלב 2 — WhatsApp</span></div>
-      <strong style="color:var(--white);">לוגיקה עסקית:</strong> חישוב דינמי של ימי התראה — הצלבת <code>Payment_Terms</code> מול תאריך הפקת החשבונית ב-SAP.<br><br>
-      <strong style="color:var(--white);">פעולות:</strong><br>
-      &nbsp;• <strong>5 ימים לפני פירעון:</strong> "תזכורת ידידותית" ללקוח + התראה פנימית לנציג גבייה<br>
-      &nbsp;• <strong>ביום הפיגור:</strong> "דרישת תשלום" ללקוח + פתיחת משימה דחופה לנציג
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">תרחיש 2 — אוטומציית סטטוס הזמנות ללקוח</div>
-  <div class="spec-card" style="border-right:3px solid #7EB8FF;">
-    <div class="spec-card-body" style="line-height:1.9;">
-      <div style="margin-bottom:10px;"><span class="tag tag-blue">לוגיסטיקה</span> <span class="tag tag-gold">שלב 1 — מייל</span></div>
-      <strong style="color:var(--white);">לוגיקה עסקית:</strong> עדכון שלבי התקדמות העסקה מול הלקוח בשקיפות מלאה.<br><br>
-      <strong style="color:var(--white);">טריגרים:</strong><br>
-      &nbsp;• שינוי סטטוס תיק ייבוא ב-ETA (אונייה)<br>
-      &nbsp;• קליטת הזמנה במחסן 1 (מלאי שוטף)<br><br>
-      <strong style="color:var(--white);">תבנית הודעה ללקוח:</strong><br>
-      <div style="background:#0D0D0D;border:1px solid var(--black-border);padding:12px 16px;border-radius:2px;margin-top:8px;font-size:12px;color:#A8C4A2;line-height:1.8;">
-        "לקוח יקר, הזמנתך מס' [<span style="color:var(--gold-light);">X</span>] נקלטה בהצלחה במחסנינו / נמצאת כעת בשילוח ימי וצפויה להגיע בתאריך [<span style="color:var(--gold-light);">Y</span>]."
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">תרחיש 3 — אוטומציית הצעות מחיר וחיתום</div>
-  <div class="spec-card" style="border-right:3px solid var(--gold);">
-    <div class="spec-card-body" style="line-height:1.9;">
-      <div style="margin-bottom:10px;"><span class="tag tag-gold">מכירות</span> <span class="tag tag-gold">שלב 1 — מייל</span> <span class="tag tag-blue">שלב 2 — WhatsApp</span></div>
-      <strong style="color:var(--white);">לוגיקה עסקית:</strong> ניהול הדוק של שלבי מכירה ומניעת תקיעות עסקאות.<br><br>
-      <strong style="color:var(--white);">שלוש פעולות:</strong><br>
-      &nbsp;<span class="tag tag-gold" style="font-size:9px;">א</span> <strong>שליחה לחיתום:</strong> הפקה ושליחה אוטומטית של קישור ייחודי לחיתום דיגיטלי<br>
-      &nbsp;<span class="tag tag-gold" style="font-size:9px;">ב</span> <strong>התראה פנימית:</strong> התראה יומית למנהל מכירות על הצעות "ממתין לחיתום" מעבר ל-48 שעות<br>
-      &nbsp;<span class="tag tag-gold" style="font-size:9px;">ג</span> <strong>השלמת תהליך:</strong> עם חיתום — הודעה אוטומטית: "ההצעה ללקוח X נחתמה והועברה כהזמנה משוריינת ל-SAP"
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">תרחיש 4 — אוטומציית תיק ייבוא פנים-ארגונית</div>
-  <div class="spec-card" style="border-right:3px solid #50C878;">
-    <div class="spec-card-body" style="line-height:1.9;">
-      <div style="margin-bottom:10px;"><span class="tag tag-green">לוגיסטיקה פנים</span> <span class="tag tag-gold">שלב 1 — מייל</span> <span class="tag tag-blue">שלב 2 — WhatsApp</span></div>
-      <strong style="color:var(--white);">לוגיקה עסקית:</strong> מעבר חלק של אחריות תפעולית בין עובדים לפי שלבי המכולה.<br><br>
-      <strong style="color:var(--white);">פעולה:</strong> בכל שינוי תחנה — יצירת משימה אוטומטית + התראה ממוקדת לעובד הספציפי המצוות לאותו שלב.<br><br>
-      <table style="width:100%;font-size:11.5px;border-collapse:collapse;margin-top:8px;">
-        <tr style="color:var(--gold);font-size:9px;letter-spacing:1px;text-transform:uppercase;">
-          <td style="padding:4px 8px;border:1px solid var(--black-border);">מעבר ל</td>
-          <td style="padding:4px 8px;border:1px solid var(--black-border);">התראה ל</td>
-          <td style="padding:4px 8px;border:1px solid var(--black-border);">פעולה</td>
-        </tr>
-        <tr style="color:var(--white-dim);">
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">תחנה 2 — שילוח</td>
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">צוות רכש</td>
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">עדכון ETA + עדכון לוח זמנים</td>
-        </tr>
-        <tr style="color:var(--white-dim);">
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">תחנה 3 — קליטה</td>
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">אחראי קליטה</td>
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">הכנה לתיעוד ראשוני</td>
-        </tr>
-        <tr style="color:var(--white-dim);">
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">תחנה 4 — מחסן</td>
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:#121212;color:#50C878;font-weight:600;">מנהל מחסן (טאבלט)</td>
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">התראה מיידית להיערכות לפריקה</td>
-        </tr>
-        <tr style="color:var(--white-dim);">
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">תחנה 5 — אישור</td>
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">מנכ"ל</td>
-          <td style="padding:6px 8px;border:1px solid var(--black-border);background:var(--black-card);">פאנל אישור + כפתור נעילה</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">תרחיש 5 — אוטומציית הזמנות רכש מול ספקים</div>
-  <div class="spec-card" style="border-right:3px solid #7A776F;">
-    <div class="spec-card-body" style="line-height:1.9;">
-      <div style="margin-bottom:10px;"><span class="tag tag-white">רכש</span> <span class="tag tag-gold">שלב 1 — מייל</span></div>
-      <strong style="color:var(--white);">לוגיקה עסקית:</strong> ייעול התקשרות מול ספקי חו"ל ישירות מכרטיס תיק הייבוא.<br><br>
-      <strong style="color:var(--white);">פעולה:</strong> מנוע המערכת מפיק תבנית <strong>Purchase Order</strong> באנגלית — שולב אוטומטית:<br>
-      &nbsp;• מק"טים + כמויות מהתיק<br>
-      &nbsp;• פרטי הספק המקושר<br>
-      &nbsp;• תנאי תשלום ומטבע<br><br>
-      <strong style="color:var(--white);">שליחה:</strong> מייל מעוצב בלחיצת כפתור אחת — ישירות לאיש הקשר אצל הספק בחו"ל (<code>Contact_Direct_Email</code>).
-    </div>
-  </div>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 32 — יומן, משימות ופרויקטים
-// ══════════════════════════════════════════════
-document.getElementById('chapter_projects').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">20i</div>
-  <h1 class="chapter-title">יומן, משימות וניהול פרויקטים — שלב 2</h1>
-  <p class="chapter-desc">מודול ניהול פרויקטים ומשימות מלא — Gantt, Kanban, List View, היררכיית משימות, בקרת חריגות ויומן פגישות.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">א — מודול ניהול פרויקטים (Project Management)</div>
-  <div class="info-box blue" style="margin-bottom:14px;">
-    <strong>שלב 2 — Future Phase.</strong> מודול משימות בסיסי (יצירה + שיוך) יופעל ב-MVP. ניהול פרויקטים מלא + Gantt — שלב 2.
-  </div>
-
-  <div class="spec-section-title" style="font-size:10px;color:var(--white-dim);">סיווג פרויקטים</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-    <span class="tag tag-gold">מתומחר</span>
-    <span class="tag tag-gold">פיקס (Fix-Price)</span>
-    <span class="tag tag-blue">שעתי</span>
-    <span class="tag tag-blue">זמני</span>
-    <span class="tag tag-green">Retainer מתמשך</span>
-    <span class="tag tag-white">ארגוני כללי</span>
-  </div>
-
-  <div class="spec-section-title" style="font-size:10px;color:var(--white-dim);">שלוש תצוגות מידע</div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
-    <div class="spec-card" style="border-top:2px solid var(--gold);">
-      <div class="spec-card-title">📊 גאנט (Gantt)</div>
-      <div class="spec-card-body" style="font-size:11.5px;margin-top:6px;">לוחות זמנים, אבני דרך ותלויות בין משימות (Dependencies).</div>
-    </div>
-    <div class="spec-card" style="border-top:2px solid #7EB8FF;">
-      <div class="spec-card-title">📋 רשימה (List)</div>
-      <div class="spec-card-body" style="font-size:11.5px;margin-top:6px;">טבלה שטוחה וממוקדת לניהול שוטף.</div>
-    </div>
-    <div class="spec-card" style="border-top:2px solid #50C878;">
-      <div class="spec-card-title">🗂️ קנבן (Kanban)</div>
-      <div class="spec-card-body" style="font-size:11.5px;margin-top:6px;">כרטיסי משימות לפי טורי סטטוס: לביצוע → בטיפול → הושלם.</div>
-    </div>
-  </div>
-
-  <div class="spec-section-title" style="font-size:10px;color:var(--white-dim);">קשרי ישויות והיררכיה</div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-body" style="font-size:12px;line-height:1.9;">
-      <strong style="color:var(--white);">Entity Linking:</strong> קישור פרויקט ← לקוח אחד / מספר לקוחות + שיוך גורמים לצוות הפרויקט.<br>
-      <strong style="color:var(--white);">היררכיה:</strong> מנהל פרויקט (Owner) → שלבי עבודה → משימות (Tasks) → תת-משימות (Sub-tasks) → גורמים בארגון.
-    </div>
-  </div>
-
-  <div class="spec-section-title" style="font-size:10px;color:var(--white-dim);">בקרת חריגות והתראות</div>
-  <table class="spec-table">
-    <thead><tr><th>סוג חריגה</th><th>תנאי</th><th>פעולה אוטומטית</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><span class="tag tag-red">תקציב</span></td>
-        <td>חציית תקציב שעות / עלות כספית שהוגדרה</td>
-        <td>התראה חזותית + אוטומטית למנהל הפרויקט</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-gold">לוחות זמנים</span></td>
-        <td>אי-עמידה בתאריכי יעד (Due Dates) של אבני דרך קריטיות</td>
-        <td>Flag אוטומטי + עדכון Dashboard מנכ"ל</td>
-      </tr>
-      <tr>
-        <td><span class="tag tag-blue">ביצוע</span></td>
-        <td>משימות פתוחות שזמן הטיפול חרג מהממוצע המוגדר</td>
-        <td>התראה למנהל + Escalation לאחר X שעות</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ב — ניהול משימות אישי ויומן פגישות</div>
-  <div class="two-col">
-    <div class="spec-card">
-      <div class="spec-card-title">✅ ניהול משימות משתמש</div>
-      <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.8;">
-        מסך מרכזי לכל עובד — משימות אישיות בחלוקה:<br>
-        &nbsp;• <strong>משימות עצמאיות</strong> — כלליות<br>
-        &nbsp;• <strong>משימות מקושרות</strong> לכרטיס לקוח / תיק ייבוא / הצעת מחיר
-      </div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-title">📅 ניהול פגישות</div>
-      <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.8;">
-        תיעוד פגישות עבודה, שטח ופנים-ארגוניות — כולל:<br>
-        &nbsp;• סיכום פגישה<br>
-        &nbsp;• משימות המשך<br>
-        &nbsp;• קישור קשיח לכרטיס לקוח — שמירת רציפות תיעוד היסטורי
-      </div>
-    </div>
-  </div>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 17b — כלים חיצוניים משולבים
-// ══════════════════════════════════════════════
-document.getElementById('chapter_ext_tools').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">17b</div>
-  <h1 class="chapter-title">כלים חיצוניים משולבים</h1>
-  <p class="chapter-desc">מפרט הכלים החיצוניים המשולבים עם מערכת ה-CRM — ערוצי תקשורת, יומנים, מסרים מיידיים ותשתיות ארגוניות.</p>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">א — ערוצי Email ויומן</div>
-  <div class="two-col">
-    <div class="spec-card" style="border-top:2px solid #50C878;">
-      <div class="spec-card-title">
-        <span style="color:#50C878;">G</span> Google Workspace
-        <span class="tag tag-green" style="float:left;margin-top:2px;">שלב 1</span>
-      </div>
-      <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-        <strong style="color:var(--white-dim);">Email:</strong> Gmail — סנכרון תיבה, Email Tracking אוטומטי, תיעוד ב-Timeline<br>
-        <strong style="color:var(--white-dim);">Calendar:</strong> Google Calendar — Two-Way Sync, זימונים אוטומטיים, ניהול התראות<br>
-        <strong style="color:var(--white-dim);">דרישה:</strong> OAuth 2.0 + חיבור ברמת המשתמש הבודד
-      </div>
-    </div>
-    <div class="spec-card" style="border-top:2px solid #7EB8FF;">
-      <div class="spec-card-title">
-        <span style="color:#7EB8FF;">M</span> Microsoft 365
-        <span class="tag tag-blue" style="float:left;margin-top:2px;">שלב 1</span>
-      </div>
-      <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-        <strong style="color:var(--white-dim);">Email:</strong> Outlook — סנכרון תיבה, Email Tracking, תיעוד ב-Timeline<br>
-        <strong style="color:var(--white-dim);">Calendar:</strong> Outlook Calendar — Two-Way Sync, זימונים אוטומטיים<br>
-        <strong style="color:var(--white-dim);">דרישה:</strong> Microsoft Graph API + Azure AD Authentication
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">ב — ערוצי WhatsApp</div>
-  <table class="spec-table">
-    <thead><tr><th>כלי</th><th>תיאור</th><th>שימוש ב-CRM</th><th>שלב</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><strong style="color:#25D366;">WhatsApp API</strong><br><small>(Business API)</small></td>
-        <td>ממשק ה-API הרשמי של Meta לשליחת הודעות תבניתיות ואוטומציות.</td>
-        <td>אוטומציות גבייה, עדכוני סטטוס הזמנות, תזכורות תיק ייבוא</td>
-        <td><span class="tag tag-blue">שלב 2</span></td>
-      </tr>
-      <tr>
-        <td><strong style="color:#25D366;">WhatsApp Business</strong></td>
-        <td>ממשק עסקי לניהול התכתבות ישירה דו-כיוונית עם לקוחות.</td>
-        <td>צ'אט שוטף עם לקוחות + שמירת היסטוריה תחת כרטיס הלקוח</td>
-        <td><span class="tag tag-blue">שלב 2</span></td>
-      </tr>
-      <tr>
-        <td><strong style="color:#25D366;">WhatsApp BOT</strong><br><small>(Chatbot)</small></td>
-        <td>בוט אוטומטי לניתוב פניות נכנסות לפי עץ נושאים.</td>
-        <td>שירות לקוחות 24/7, ניתוב לנציג, מענה אוטומטי לשאלות נפוצות</td>
-        <td><span class="tag tag-blue">שלב 2</span></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">ג — כלים עתידיים (לא חובה בשלב 1/2)</div>
-  <div class="spec-card" style="border-right:3px solid #555; opacity:0.8;">
-    <div class="spec-card-title">☎️ מרכזייה (PBX Integration)
-      <span class="tag tag-white" style="float:left;margin-top:2px;">עתידי</span>
-    </div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      התממשקות לתשתית הטלפונית הארגונית (IP-PBX) — הצגת פרטי לקוח בעת שיחה נכנסת (CTI), הקלטת שיחות ותיעוד אוטומטי ב-CRM תחת כרטיס הלקוח.<br>
-      <strong style="color:var(--white-muted);">תלות:</strong> ספק מרכזייה תואם API (לדוגמה: 3CX, Vonage, Twilio Voice).
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">סיכום כלים לפי שלב</div>
-  <table class="spec-table">
-    <thead><tr><th>כלי</th><th>פרוטוקול</th><th>שלב 1 MVP</th><th>שלב 2</th><th>עתידי</th></tr></thead>
-    <tbody>
-      <tr><td>Gmail / Google Calendar</td><td>OAuth 2.0 / Google API</td><td><span class="tag tag-green">✓</span></td><td>—</td><td>—</td></tr>
-      <tr><td>Outlook / MS Calendar</td><td>Microsoft Graph API</td><td><span class="tag tag-green">✓</span></td><td>—</td><td>—</td></tr>
-      <tr><td>WhatsApp Business API</td><td>Meta Business API</td><td>—</td><td><span class="tag tag-blue">✓</span></td><td>—</td></tr>
-      <tr><td>WhatsApp Business (Chat)</td><td>Meta Business API</td><td>—</td><td><span class="tag tag-blue">✓</span></td><td>—</td></tr>
-      <tr><td>WhatsApp BOT</td><td>Meta + Webhook</td><td>—</td><td><span class="tag tag-blue">✓</span></td><td>—</td></tr>
-      <tr><td>מרכזייה (PBX)</td><td>SIP / CTI API</td><td>—</td><td>—</td><td><span class="tag tag-white">עתידי</span></td></tr>
-    </tbody>
-  </table>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 20b — מחולל דיוור וקמפיינים
-// ══════════════════════════════════════════════
-document.getElementById('chapter_mailing').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">20b</div>
-  <h1 class="chapter-title">מחולל דיוור וקמפיינים (Campaigns & Mailing Engine)</h1>
-  <p class="chapter-desc">מנוע דיוור מובנה ב-CRM לניהול קמפיינים ממוקדים לפי קהלים דינמיים — דואל ו-WhatsApp — כולל קמפיינים "רצים" ודיוור תקופתי לפי דרישה.</p>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">א — ארכיטקטורת מנוע הדיוור</div>
-  <div class="info-box gold">
-    <strong>עיקרון:</strong> הדיוור מתבצע ישירות מתוך ה-CRM — ללא צורך בכלי שיווק חיצוניים. הקהל מוגדר לפי שדות, סיווגים וסטטוסים של רשומות ה-CRM בזמן אמת.
-  </div>
-  <div class="two-col" style="margin-top:16px;">
-    <div class="spec-card" style="border-top:2px solid var(--gold);">
-      <div class="spec-card-title">📧 ערוץ דואל</div>
-      <div class="spec-card-body" style="margin-top:6px;font-size:12px;line-height:1.8;">
-        שליחת ניוזלטרים, עדכוני מחירון, מבצעים ועדכוני מוצר<br>
-        מבוסס Gmail / Microsoft 365 (שלב 1)<br>
-        תמיכה ב-HTML Email מעוצב עם לוגו ו-CTA
-      </div>
-    </div>
-    <div class="spec-card" style="border-top:2px solid #25D366;">
-      <div class="spec-card-title" style="color:#25D366;">💬 ערוץ WhatsApp</div>
-      <div class="spec-card-body" style="margin-top:6px;font-size:12px;line-height:1.8;">
-        שליחת הודעות תבניתיות (Template Messages)<br>
-        מבוסס WhatsApp Business API (שלב 2)<br>
-        תמיכה בתמונות, קישורים וכפתורי CTA
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">ב — מחולל קהלים (Audience Builder)</div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">🎯 הגדרת קהל לפי סיווגים ופילטרים</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      מנהל הדיוור יגדיר קהל יעד על ידי בחירת כללי סינון דינמיים מתוך שדות ה-CRM:<br><br>
-      <table style="width:100%;font-size:11.5px;border-collapse:collapse;">
-        <tr style="color:var(--gold);font-size:9px;letter-spacing:1px;text-transform:uppercase;">
-          <td style="padding:5px 10px;border:1px solid var(--black-border);">קריטריון</td>
-          <td style="padding:5px 10px;border:1px solid var(--black-border);">דוגמאות ערכים</td>
-        </tr>
-        <tr style="color:var(--white-dim);"><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">קבוצת לקוח (OCRG)</td><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">מפיצים / לקוחות פרטיים / קמעונאים</td></tr>
-        <tr style="color:var(--white-dim);"><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">ענף (OIND)</td><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">תעשיית מזון / לוגיסטיקה / בנייה</td></tr>
-        <tr style="color:var(--white-dim);"><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">סטטוס לקוח</td><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">פעיל / רדום / חדש (30 ימים אחרונים)</td></tr>
-        <tr style="color:var(--white-dim);"><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">היסטוריית רכישות</td><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">רכש פריט X בשנה האחרונה / לא רכש 90 יום</td></tr>
-        <tr style="color:var(--white-dim);"><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">אובליגו / חוב</td><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">חוב פתוח &gt;0 / בתוך מסגרת אשראי</td></tr>
-        <tr style="color:var(--white-dim);"><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">נציג מכירות</td><td style="padding:7px 10px;border:1px solid var(--black-border);background:var(--black-card);">לקוחות של נציג ספציפי</td></tr>
-      </table>
-    </div>
-  </div>
-  <div class="info-box blue">
-    <strong>קהל דינמי:</strong> הקהל מחושב מחדש בכל שליחה — לקוחות שעברו לסיווג אחר יצאו מהקהל אוטומטית ולקוחות חדשים התואמים יכנסו אוטומטית.
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">ג — שלושה מודלי קמפיין</div>
-
-  <div class="spec-card" style="margin-bottom:12px; border-right:3px solid #50C878;">
-    <div class="spec-card-title">⚡ קמפיין "רץ" (Running Campaign — Trigger-Based)</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      <strong style="color:var(--white);">הגדרה:</strong> קמפיין פעיל ברקע — ברגע שרשומה חדשה (לקוח / עסקה) נוספת ל-CRM ותואמת לצביעת הקהל המוגדרת — האוטומציה מופעלת מיידית ללא מגע יד אדם.<br><br>
-      <strong style="color:var(--white);">דוגמאות:</strong><br>
-      &nbsp;• לקוח חדש שנוצר → שליחת מייל "ברוך הבא" + מדריך מוצרים<br>
-      &nbsp;• לקוח שלא רכש 90 יום → SMS / WhatsApp "חסרת לנו"<br>
-      &nbsp;• הצעת מחיר נשלחה ולא נחתמה 48 שעות → תזכורת אוטומטית
-    </div>
-  </div>
-
-  <div class="spec-card" style="margin-bottom:12px; border-right:3px solid var(--gold);">
-    <div class="spec-card-title">📅 דיוור תקופתי (Scheduled Campaign)</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      <strong style="color:var(--white);">הגדרה:</strong> קמפיין המוגדר לשליחה בתאריך ושעה קבועים — חד-פעמי או מחזורי (יומי / שבועי / חודשי).<br><br>
-      <strong style="color:var(--white);">דוגמאות:</strong><br>
-      &nbsp;• ניוזלטר חודשי בכל 1 לחודש לכלל לקוחות פעילים<br>
-      &nbsp;• עדכון מחירון עונתי ← לקוחות קבוצת "מפיצים"<br>
-      &nbsp;• בשורות מוצר חדש ← לפי ענף פעילות רלוונטי
-    </div>
-  </div>
-
-  <div class="spec-card" style="border-right:3px solid #7EB8FF;">
-    <div class="spec-card-title">🖱️ דיוור לפי דרישה (On-Demand Campaign)</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      <strong style="color:var(--white);">הגדרה:</strong> שליחה ידנית מיידית על ידי מנהל השיווק / מכירות — בחירת קהל + תבנית → לחיצת כפתור "שלח עכשיו".<br><br>
-      <strong style="color:var(--white);">דוגמאות:</strong><br>
-      &nbsp;• הודעת דחוף על מבצע מוגבל זמן<br>
-      &nbsp;• עדכון לגבי שינוי ETA של מכולה ספציפית ללקוחות רלוונטיים
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">ד — מחולל תבניות דיוור</div>
-  <div class="two-col">
-    <div class="spec-card">
-      <div class="spec-card-title">📧 תבנית Email</div>
-      <div class="spec-card-body" style="margin-top:6px;font-size:12px;line-height:1.8;">
-        עורך Drag & Drop ← HTML Email<br>
-        שדות דינמיים: [שם לקוח], [שם נציג], [סך חוב פתוח]<br>
-        לוגו + צבעי מותג + כפתורי CTA<br>
-        תמיכה ב-Unsubscribe אוטומטי
-      </div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-title" style="color:#25D366;">💬 תבנית WhatsApp</div>
-      <div class="spec-card-body" style="margin-top:6px;font-size:12px;line-height:1.8;">
-        תבניות מאושרות (Template Messages) ← Meta<br>
-        שדות דינמיים: [שם], [מספר הזמנה], [תאריך]<br>
-        תמיכה בתמונות, מסמכי PDF וכפתורי Reply<br>
-        <span class="tag tag-blue" style="margin-top:4px;display:inline-block;">שלב 2</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">ה — מדדי ביצוע קמפיין (Campaign Analytics)</div>
-  <table class="spec-table">
-    <thead><tr><th>מדד</th><th>הגדרה</th></tr></thead>
-    <tbody>
-      <tr><td><strong>נשלח</strong></td><td>מספר הנמענים שהדיוור נשלח אליהם</td></tr>
-      <tr><td><strong>נפתח (Open Rate)</strong></td><td>אחוז נמענים שפתחו את המייל</td></tr>
-      <tr><td><strong>קליק (CTR)</strong></td><td>אחוז נמענים שלחצו על קישור / CTA</td></tr>
-      <tr><td><strong>הסרה (Unsubscribe)</strong></td><td>מספר הסרות מהדיוור — מעודכן אוטומטית ב-CRM</td></tr>
-      <tr><td><strong>שגיאות שליחה</strong></td><td>מיילים שנדחו (Bounce) — Hard / Soft</td></tr>
-    </tbody>
-  </table>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 33 — ניהול טכנאי שטח
-// ══════════════════════════════════════════════
-document.getElementById('chapter_field_tech').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">21a</div>
-  <h1 class="chapter-title">מערך ניהול טכנאי שטח — Field Service Management</h1>
-  <p class="chapter-desc">שלב 2 — מודול לניהול טכנאי שטח מתוך ה-CRM: שיוך קריאות שירות, מעקב ביקורים, תיעוד עבודה ואוטומציות לאחר ביקור.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">א — ניהול קריאות שירות (Service Tickets)</div>
-  <div class="info-box blue"><strong>שלב 2 — Future Phase.</strong> מחייב מודול שירות לקוחות (פרק 34) כתשתית.</div>
-  <div class="flow-steps" style="margin-top:14px;">
-    <div class="flow-step"><div class="flow-step-num">1</div><div class="flow-step-content"><div class="flow-step-title">פתיחת קריאת שירות</div><div class="flow-step-desc">לקוח / נציג שירות פותח קריאה ← מקושרת לכרטסת הלקוח, תיאור התקלה, דחיפות.</div></div><div class="flow-step-tag"><span class="tag tag-gold">Ticket</span></div></div>
-    <div class="flow-step"><div class="flow-step-num">2</div><div class="flow-step-content"><div class="flow-step-title">שיוך טכנאי</div><div class="flow-step-desc">מנהל שירות משייך טכנאי שטח לפי מיקום גיאוגרפי / תחום מומחיות / עומס עבודה.</div></div><div class="flow-step-tag"><span class="tag tag-blue">Assign</span></div></div>
-    <div class="flow-step"><div class="flow-step-num">3</div><div class="flow-step-content"><div class="flow-step-title">הגעת טכנאי ואישור</div><div class="flow-step-desc">טכנאי מאשר הגעה דרך אפליקציה / טאבלט — Check-In אוטומטי עם חותמת זמן ומיקום GPS.</div></div><div class="flow-step-tag"><span class="tag tag-green">Check-In</span></div></div>
-    <div class="flow-step"><div class="flow-step-num">4</div><div class="flow-step-content"><div class="flow-step-title">תיעוד העבודה</div><div class="flow-step-desc">הטכנאי מתעד פעולות, חלקים שהוחלפו, צילומי מסמכים — הכל מקושר לקריאת השירות.</div></div><div class="flow-step-tag"><span class="tag tag-gold">Log</span></div></div>
-    <div class="flow-step"><div class="flow-step-num">5</div><div class="flow-step-content"><div class="flow-step-title">חתימת לקוח ואישור סגירה</div><div class="flow-step-desc">לקוח חותם דיגיטלית על דוח העבודה ← קריאה נסגרת + PDF נשמר ב-CRM.</div></div><div class="flow-step-tag"><span class="tag tag-green">Closed</span></div></div>
-  </div>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ב — אוטומציות שירות שטח</div>
-  <table class="spec-table">
-    <thead><tr><th>טריגר</th><th>פעולה אוטומטית</th></tr></thead>
-    <tbody>
-      <tr><td>קריאה חדשה נפתחה</td><td>התראה מיידית למנהל שירות + שיוך טכנאי פנוי</td></tr>
-      <tr><td>טכנאי שויך לקריאה</td><td>התראה ל-WhatsApp הטכנאי עם פרטי הלקוח וכתובת</td></tr>
-      <tr><td>סגירת קריאה</td><td>מייל סיכום אוטומטי ללקוח + מדד שביעות רצון (1-5)</td></tr>
-      <tr><td>קריאה ללא מענה &gt; 4 שעות</td><td>Escalation אוטומטי למנהל שירות</td></tr>
-    </tbody>
-  </table>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 34 — ניהול שירות לקוחות
-// ══════════════════════════════════════════════
-document.getElementById('chapter_service_desk').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">21b</div>
-  <h1 class="chapter-title">מערך ניהול שירות לקוחות — Help Desk</h1>
-  <p class="chapter-desc">שלב 2 — ריכוז כל פניות הלקוחות ממספר ערוצים למסך ניהול אחד (Omnichannel Inbox) עם אוטומציות, סיווגים ו-SLA.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">א — Omnichannel Inbox — תיבה אחת לכל הערוצים</div>
-  <div class="info-box gold">
-    כל הפניות מכל הערוצים — מייל, WhatsApp, טופס אתר, טלפון — מגיעות לתיבת ניהול אחת ב-CRM. כל פנייה מקושרת אוטומטית לכרטסת הלקוח הרלוונטית.
-  </div>
-  <table class="spec-table" style="margin-top:14px;">
-    <thead><tr><th>ערוץ מקור</th><th>קישור אוטומטי</th><th>שלב</th></tr></thead>
-    <tbody>
-      <tr><td>דואל (Gmail / Outlook)</td><td>לפי כתובת אימייל</td><td><span class="tag tag-green">שלב 1</span></td></tr>
-      <tr><td>WhatsApp Business</td><td>לפי מספר טלפון</td><td><span class="tag tag-blue">שלב 2</span></td></tr>
-      <tr><td>טופס אתר (Webform)</td><td>לפי מייל/טלפון</td><td><span class="tag tag-blue">שלב 2</span></td></tr>
-      <tr><td>מרכזייה (CTI)</td><td>לפי מספר מתקשר</td><td><span class="tag tag-white">עתידי</span></td></tr>
-    </tbody>
-  </table>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ב — סיווג ועדיפות פניות (Ticket Classification)</div>
-  <div class="two-col">
-    <div class="spec-card">
-      <div class="spec-card-title">📂 סיווג לפי נושא</div>
-      <div class="spec-card-body" style="margin-top:6px;font-size:12px;line-height:1.8;">
-        &nbsp;• שירות ותמיכה טכנית<br>
-        &nbsp;• שאלות מחיר / הצעת מחיר<br>
-        &nbsp;• סטטוס הזמנה / משלוח<br>
-        &nbsp;• תלונות ואיכות<br>
-        &nbsp;• בקשות מידע כלליות
-      </div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-title">🔴 רמות דחיפות (SLA)</div>
-      <div class="spec-card-body" style="margin-top:6px;font-size:12px;line-height:1.8;">
-        <span class="tag tag-red">דחוף</span> — מענה תוך 2 שעות<br>
-        <span class="tag tag-gold">גבוה</span> — מענה תוך 4 שעות<br>
-        <span class="tag tag-blue">רגיל</span> — מענה תוך 24 שעות<br>
-        <span class="tag tag-white">נמוך</span> — מענה תוך 48 שעות
-      </div>
-    </div>
-  </div>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ג — אוטומציות שירות לקוחות</div>
-  <table class="spec-table">
-    <thead><tr><th>טריגר</th><th>פעולה</th></tr></thead>
-    <tbody>
-      <tr><td>פנייה חדשה נכנסת</td><td>אישור קבלה אוטומטי ללקוח + מספר פנייה</td></tr>
-      <tr><td>פנייה לא נענתה &gt; SLA</td><td>Escalation למנהל + צביעה אדומה במסך</td></tr>
-      <tr><td>פנייה נסגרה</td><td>סקר שביעות רצון (CSAT) ← מייל / WhatsApp</td></tr>
-      <tr><td>לקוח חוזר עם אותה בעיה</td><td>דגל "פנייה חוזרת" + עדיפות גבוהה אוטומטית</td></tr>
-    </tbody>
-  </table>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 35 — מרכזייה
-// ══════════════════════════════════════════════
-document.getElementById('chapter_pbx').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">21c</div>
-  <h1 class="chapter-title">התממשקות מרכזייה (PBX / CTI Integration)</h1>
-  <p class="chapter-desc">שלב עתידי — חיבור תשתית הטלפונית הארגונית ל-CRM לשיפור חוויית השיחה, תיעוד אוטומטי ויצירת לידים משיחות נכנסות.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">יכולות מרכזיות</div>
-  <div class="info-box blue"><strong>שלב עתידי.</strong> מחייב ספק מרכזייה תואם API (3CX / Vonage / Twilio Voice וכו').</div>
-  <table class="spec-table" style="margin-top:14px;">
-    <thead><tr><th>יכולת</th><th>תיאור</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><strong>Caller ID + Screen Pop</strong></td>
-        <td>בעת שיחה נכנסת — ה-CRM מזהה את הלקוח לפי מספר הטלפון ופותח אוטומטית את כרטסתו על המסך.</td>
-      </tr>
-      <tr>
-        <td><strong>Click-to-Call</strong></td>
-        <td>לחיצה על מספר טלפון בכרטסת הלקוח ב-CRM → מפעילה שיחה יוצאת ישירות דרך המרכזייה.</td>
-      </tr>
-      <tr>
-        <td><strong>תיעוד שיחה אוטומטי</strong></td>
-        <td>כל שיחה (נכנסת / יוצאת) — נרשמת בציר הזמן של הלקוח: תאריך, שעה, משך, נציג מטפל.</td>
-      </tr>
-      <tr>
-        <td><strong>הקלטת שיחות</strong></td>
-        <td>קישור להקלטת השיחה ← מאוחסן תחת כרטסת הלקוח לניתוח עתידי.</td>
-      </tr>
-      <tr>
-        <td><strong>ניצול זמן שיחה לפתיחת ליד</strong></td>
-        <td>שיחה ממספר לא מזוהה → CRM מציע יצירת ליד חדש עם המידע שנאסף.</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 36 — ניהול לידים
-// ══════════════════════════════════════════════
-document.getElementById('chapter_leads').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">21d</div>
-  <h1 class="chapter-title">ניהול לידים (Lead Management)</h1>
-  <p class="chapter-desc">שלב 2 — מחזור חיי ליד מלא: לכידה, סיווג, ניקוד, שיוך לנציג, המרה ללקוח ב-CRM ועלייה ל-SAP.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">א — מקורות לכידת ליד</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
-    <span class="tag tag-gold">טופס אתר (Webform)</span>
-    <span class="tag tag-blue">WhatsApp BOT</span>
-    <span class="tag tag-green">שיחה נכנסת (PBX)</span>
-    <span class="tag tag-white">הזנה ידנית</span>
-    <span class="tag tag-white">קמפיין דיוור</span>
-    <span class="tag tag-blue">AI Chatbot</span>
-  </div>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ב — מחזור חיי ליד (Lead Lifecycle)</div>
-  <div class="flow-steps">
-    <div class="flow-step"><div class="flow-step-num">1</div><div class="flow-step-content"><div class="flow-step-title">לכידה (Capture)</div><div class="flow-step-desc">ליד נוצר ממקור כלשהו — שדות ראשוניים: שם, טלפון, מייל, מקור.</div></div><div class="flow-step-tag"><span class="tag tag-blue">New Lead</span></div></div>
-    <div class="flow-step"><div class="flow-step-num">2</div><div class="flow-step-content"><div class="flow-step-title">ניקוד (Lead Scoring)</div><div class="flow-step-desc">ניקוד אוטומטי לפי: מקור ליד, ענף, גודל חברה, פעילות (פתח מייל, לחץ קישור).</div></div><div class="flow-step-tag"><span class="tag tag-gold">Score</span></div></div>
-    <div class="flow-step"><div class="flow-step-num">3</div><div class="flow-step-content"><div class="flow-step-title">שיוך לנציג (Assignment)</div><div class="flow-step-desc">שיוך אוטומטי לנציג מכירות לפי אזור גיאוגרפי / ענף / עומס.</div></div><div class="flow-step-tag"><span class="tag tag-blue">Assign</span></div></div>
-    <div class="flow-step"><div class="flow-step-num">4</div><div class="flow-step-content"><div class="flow-step-title">הסמכה (Qualify)</div><div class="flow-step-desc">נציג מסמך ליד — מעבר לסטטוס "מוסמך" → פתיחת הצעת מחיר.</div></div><div class="flow-step-tag"><span class="tag tag-gold">Qualified</span></div></div>
-    <div class="flow-step"><div class="flow-step-num">5</div><div class="flow-step-content"><div class="flow-step-title">המרה ללקוח (Convert)</div><div class="flow-step-desc">עם חתימת עסקה — ליד מומר ללקוח חדש ב-CRM + שידור ל-SAP (לפי פרק 07).</div></div><div class="flow-step-tag"><span class="tag tag-green">Converted</span></div></div>
-  </div>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 37 — בוט שירות ומכירה
-// ══════════════════════════════════════════════
-document.getElementById('chapter_bot_service').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">21e</div>
-  <h1 class="chapter-title">בוט שירות ומכירה — Chatbot</h1>
-  <p class="chapter-desc">שלב 2 — בוט אוטומטי דו-ערוצי (WhatsApp + אתר) לניתוב פניות, מענה ראשוני, לכידת לידים ושירות עצמי ללקוחות.</p>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">א — תרחישי שירות (Service Bot)</div>
-  <table class="spec-table">
-    <thead><tr><th>תרחיש</th><th>טריגר</th><th>תגובת הבוט</th></tr></thead>
-    <tbody>
-      <tr><td>סטטוס הזמנה</td><td>לקוח כותב "סטטוס הזמנה" / "where is my order"</td><td>שליפת הזמנה אחרונה + ETA ← מ-CRM</td></tr>
-      <tr><td>יתרת חוב</td><td>לקוח שואל על חשבונית פתוחה</td><td>שליפת Balance_Due_To_Pay + קישור לתשלום</td></tr>
-      <tr><td>פתיחת קריאת שירות</td><td>לקוח מתאר תקלה</td><td>פתיחת Ticket + מספר קריאה + ETA מענה</td></tr>
-      <tr><td>ניתוב לנציג</td><td>בקשה לדבר עם אדם</td><td>העברה לנציג פנוי + קונטקסט השיחה</td></tr>
-    </tbody>
-  </table>
-</div>
-<div class="spec-section">
-  <div class="spec-section-title">ב — תרחישי מכירה (Sales Bot)</div>
-  <table class="spec-table">
-    <thead><tr><th>תרחיש</th><th>טריגר</th><th>תגובת הבוט</th></tr></thead>
-    <tbody>
-      <tr><td>לכידת ליד חדש</td><td>פנייה מגורם לא מזוהה</td><td>שאלות qualification → יצירת Lead ב-CRM</td></tr>
-      <tr><td>שאלת מחיר</td><td>"כמה עולה X"</td><td>שליחת קטלוג / ניתוב לנציג מכירות</td></tr>
-      <tr><td>בקשת הצעת מחיר</td><td>"אני מעוניין בהצעת מחיר"</td><td>איסוף פרטים + פתיחת ליד + שיוך לנציג</td></tr>
-    </tbody>
-  </table>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  CHAPTER 38 — AI Agent
-// ══════════════════════════════════════════════
-document.getElementById('chapter_ai_agent').innerHTML = `
-<div class="chapter-header">
-  <div class="chapter-num">21f</div>
-  <h1 class="chapter-title">AI Agent — סוכן חכם לשירות ומכירה</h1>
-  <p class="chapter-desc">שלב 2 — סוכן AI מבוסס LLM (Large Language Model) המשולב עם נתוני ה-CRM וה-SAP של זומריך — מסייע לנציגים, מנתח עסקאות ומשדרג את חוויית הלקוח.</p>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">א — AI Agent לסיוע נציג מכירות (Sales Copilot)</div>
-  <div class="info-box gold">
-    <strong>עיקרון:</strong> ה-AI Agent פועל כ"שותף חכם" לנציג — צורך נתוני CRM בזמן אמת ומייצר תובנות, הצעות והמלצות פעולה מידיות.
-  </div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">🤖 ניתוח לקוח חכם — בפתיחת כרטסת</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      בכל פתיחת כרטסת לקוח — ה-AI מייצר סיכום מותאם אישית:<br>
-      &nbsp;• "לקוח זה רכש לאחרונה פריטים מקטגוריה X — כדאי להציג את המוצר החדש Y"<br>
-      &nbsp;• "ממוצע ההזמנות ירד ב-30% מהרבעון הקודם — לקוח בסיכון לנטישה"<br>
-      &nbsp;• "יש לו חשבונית פתוחה מ-45 יום — המלץ על פתרון תשלום לפני שליחת הצעה חדשה"
-    </div>
-  </div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">💡 המלצת מוצרים (Product Recommendation)</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      מבוסס היסטוריית רכישות + ענף הלקוח + מגמות מכירה:<br>
-      &nbsp;• "לקוחות דומים בענף מזון רכשו גם את: [רשימת פריטים]"<br>
-      &nbsp;• "זהו הזמן המתאים לחדש הזמנה — הזמנתך האחרונה הייתה לפני 90 יום"<br>
-      &nbsp;• Cross-sell / Upsell אוטומטי על בסיס הצעת המחיר הנוכחית
-    </div>
-  </div>
-  <div class="spec-card">
-    <div class="spec-card-title">📝 עוזר כתיבת הצעות מחיר</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      ה-AI מסייע לנציג בניסוח תנאים ומלל הצעה:<br>
-      &nbsp;• יצירת טקסט פתיחה מותאם אישית ללקוח ספציפי<br>
-      &nbsp;• ניסוח תנאים מסחריים בהתאם לתנאי התשלום ב-SAP<br>
-      &nbsp;• תרגום הצעות לאנגלית לספקים בחו"ל
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">ב — AI Agent לשירות לקוחות (Service Intelligence)</div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">🔍 ניתוח פנייה חכם — Auto-Categorization</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      כל פנייה נכנסת (מייל / WhatsApp) — ה-AI מנתח את הטקסט ומייצר:<br>
-      &nbsp;• סיווג אוטומטי לנושא (תלונה / שאלה / בקשת מחיר / תמיכה טכנית)<br>
-      &nbsp;• ניקוד דחיפות (1–5) על בסיס טון הפנייה + היסטוריית הלקוח<br>
-      &nbsp;• הצעת תגובה מומלצת לנציג לפי תבניות מוגדרות
-    </div>
-  </div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">📊 תובנות גבייה חכמות</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      ה-AI מנתח דפוסי תשלום של לקוחות:<br>
-      &nbsp;• "לקוח זה משלם בממוצע 12 ימים לאחר הפירעון — שלח תזכורת 17 ימים מראש"<br>
-      &nbsp;• זיהוי לקוחות בסיכון פיגור גבוה לפי דפוס היסטורי<br>
-      &nbsp;• המלצה על מסגרת אשראי מותאמת לפי נפח רכישות
-    </div>
-  </div>
-  <div class="spec-card">
-    <div class="spec-card-title">📦 ניתוח תיק ייבוא חכם</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      ה-AI סורק את תיק הייבוא ומדגיש חריגות:<br>
-      &nbsp;• "פריט A00101 — כמות בחשבונית גבוהה ב-20% מהזמנת הלקוח — ייועד למחסן"<br>
-      &nbsp;• "עלות שילוח גבוהה ב-15% מהממוצע ההיסטורי — ייתכן אנומליה"<br>
-      &nbsp;• חישוב רווחיות נטו אוטומטי: (סך מכירות) − (Landed Costs) = רווח גולמי לתיק
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">ג — AI Agent כ-Chatbot חכם (Conversational AI)</div>
-  <div class="spec-card" style="margin-bottom:12px;">
-    <div class="spec-card-title">💬 שיחה טבעית בעברית + אנגלית</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      שלב מתקדם: הבוט עובר מעץ הודעות קשיח ל-<strong>שיחה חופשית טבעית</strong> (NLP).<br>
-      לקוח יכול לשאול בשפה חופשית: "מה הסטטוס של ההזמנה שלי מהחודש שעבר?" — ה-AI מבין, שולף נתון מה-CRM, ועונה.
-    </div>
-  </div>
-  <div class="spec-card">
-    <div class="spec-card-title">🔄 Handoff חכם לנציג אנושי</div>
-    <div class="spec-card-body" style="margin-top:8px;font-size:12px;line-height:1.9;">
-      כאשר ה-AI מזהה פנייה מורכבת / רגישה / מחוץ ליכולתו:<br>
-      &nbsp;① מסכם את השיחה לנציג בנקודות<br>
-      &nbsp;② מעביר עם קונטקסט מלא — ללא חזרה על פרטים ללקוח<br>
-      &nbsp;③ ממשיך ללמוד מהטיפול האנושי לשיפור עתידי
-    </div>
-  </div>
-</div>
-
-<div class="spec-section">
-  <div class="spec-section-title">ד — תשתית טכנית AI</div>
-  <table class="spec-table">
-    <thead><tr><th>רכיב</th><th>תיאור</th></tr></thead>
-    <tbody>
-      <tr><td><strong>LLM Engine</strong></td><td>OpenAI GPT-4 / Claude / Gemini — לבחירה לפי מדיניות אבטחת נתונים</td></tr>
-      <tr><td><strong>RAG (Retrieval Augmented)</strong></td><td>ה-AI צורך נתוני CRM בזמן אמת ← Views + API — ללא Fine-tuning יקר</td></tr>
-      <tr><td><strong>Data Privacy</strong></td><td>נתוני לקוחות אינם נשלחים לאימון מודל — שימוש ב-Private Deployment</td></tr>
-      <tr><td><strong>Audit Log</strong></td><td>כל שאלה + תשובת AI מתועדת ב-CRM עם חותמת זמן</td></tr>
-    </tbody>
-  </table>
-</div>
-`;
-
-// ══════════════════════════════════════════════
-//  QUOTE MOCK BUILDER
-// ══════════════════════════════════════════════
-window._buildQuoteMock = function() {
-  const root = document.getElementById('quoteMockRoot');
+// ─── Build Quote in appendix ───
+window._buildAppendixQuote = function() {
+  const root = document.getElementById('appendixQuoteRoot');
+  if (!root || root.innerHTML.trim()) return;
+  // Reuse same mock logic as chapter 10
+  if (window._buildQuoteMockInto) { window._buildQuoteMockInto(root); return; }
+  root.innerHTML = '<div class="info-box blue">פתח תחילה את פרק 10 כדי לטעון את רכיב ההצעה, ואז חזור לנספח זה.</div>';
+};
+
+// ─── Build Tech Form ───
+window._buildTechForm = function() {
+  const root = document.getElementById('appendixTechRoot');
   if (!root || root.innerHTML.trim()) return;
 
-  let lang = 'he';
+  const customers = ['גלובל ציץ בע"מ','מכלת אבנר','סופרמשקאות בע"מ','לקוח כהן בע"מ','לקוח לוי מסחר'];
+  const teamMembers = ['שחף שלו — סמנכ"ל','יואב כהן — מנהל מכירות','מיכל לוי — תפעול','רן גולן — טכנאי בכיר','דנה פרץ — שירות לקוחות'];
+  const visitTypes = ['ביקור שירות', 'ביקור מכירה', 'התקנה', 'הדרכה', 'בדיקה תקופתית', 'תלונת לקוח'];
 
-  const T = {
-    he: {
-      title: 'הצעת מחיר',
-      quoteNum: 'מספר הצעה:',
-      quoteDate: 'תאריך:',
-      quoteVer: 'גרסה:',
-      to: 'לכבוד:',
-      attn: 'לידי:',
-      vat_id: 'ע"מ / ח"פ:',
-      addr: 'כתובת:',
-      custCode: 'קוד לקוח:',
-      via: 'באמצעות:',
-      email_l: 'דואל:',
-      fax_l: 'פקס:',
-      mobile_l: 'נייד:',
-      subject: 'נושא: הצעת מחיר לאספקת ציוד תעשייתי',
-      col_code: 'קוד',
-      col_name: 'שם פריט',
-      col_desc: 'תיאור',
-      col_qty: 'כמות',
-      col_price: 'מחיר',
-      col_disc: 'הנחה',
-      col_total: 'סה"כ',
-      subtotal: 'סה"כ חייב במע"מ:',
-      disc_total: 'הנחה כוללת:',
-      after_disc: 'סה"כ אחרי הנחה:',
-      vat: 'מע"מ 18%:',
-      grand: 'סה"כ לתשלום:',
-      total_disc: 'סה"כ הנחות:',
-      terms_title: 'תנאים והבהרות:',
-      terms_text: 'המחיר אינו כולל מכונות FAT למכונות בח"ל.\nהמחיר אינו כולל הובלה ועבודת התקנה, והכנסת ציוד בארץ.\nהמחיר אינו כולל אקדים מקצועיים מיוחדים.\nהמחירים עומדים לשינוי ללא הודעה מראש, לא נעול אך מתחייב לנמסר ביום הזמנה.',
-      sign_line: 'בברכה,',
-      sign_company: 'זומריך סוכנויות לציוד תעשייתי בע"מ',
-      sign_name: 'שחף שלו',
-      sign_role: 'סמנכ"ל',
-      lang_btn: 'English Version',
-      company_name: 'SOMMERICH AGENCIES | זומריך סוכנויות',
-      company_sub: 'INDUSTRIAL EQUIPMENT LTD | ציוד תעשייתי בע"מ | 1958',
-      company_addr: 'ת.ד. 2017 נס ציונה | P.O. Box 2017 Ness-Ziona',
-      company_contact: 'טל: 08-9477634 | פקס: 08-9107725 | email: sommerich@bezeqint.net',
-    },
-    en: {
-      title: 'QUOTATION',
-      quoteNum: 'Quote No.:',
-      quoteDate: 'Date:',
-      quoteVer: 'Version:',
-      to: 'To:',
-      attn: 'Attn:',
-      vat_id: 'VAT / Co. No.:',
-      addr: 'Address:',
-      custCode: 'Customer Code:',
-      via: 'Via:',
-      email_l: 'Email:',
-      fax_l: 'Fax:',
-      mobile_l: 'Mobile:',
-      subject: 'Subject: Quotation for Industrial Equipment Supply',
-      col_code: 'Code',
-      col_name: 'Item Name',
-      col_desc: 'Description',
-      col_qty: 'Qty',
-      col_price: 'Price',
-      col_disc: 'Discount',
-      col_total: 'Total',
-      subtotal: 'Subtotal (ex. VAT):',
-      disc_total: 'Total Discount:',
-      after_disc: 'Total After Discount:',
-      vat: 'VAT 18%:',
-      grand: 'Grand Total:',
-      total_disc: 'Total Savings:',
-      terms_title: 'Terms & Conditions:',
-      terms_text: 'Prices do not include FAT for overseas machines.\nPrices do not include shipping, installation or customs clearance.\nPrices do not include special professional training.\nPrices are subject to change without notice.',
-      sign_line: 'Best Regards,',
-      sign_company: 'Sommerich Agencies – Industrial Equipment Ltd',
-      sign_name: 'Shachaf Shelo',
-      sign_role: 'VP Sales',
-      lang_btn: 'גרסה עברית',
-      company_name: 'SOMMERICH AGENCIES | זומריך סוכנויות',
-      company_sub: 'INDUSTRIAL EQUIPMENT LTD | ציוד תעשייתי בע"מ | 1958',
-      company_addr: 'P.O. Box 2017 Ness-Ziona | ת.ד. 2017 נס ציונה',
-      company_contact: 'Tel: 08-9477634 | Fax: 08-9107725 | email: sommerich@bezeqint.net',
-    }
-  };
+  root.innerHTML = `
+  <div style="direction:rtl;font-family:inherit;max-width:680px;margin:0 auto;">
 
-  const items = [
-    { code: 'GM-1100', name: { he: 'מכונת GELMINI', en: 'GELMINI Machine' }, desc: { he: 'מכונה חדשה, חיתוך מלא, עם אוטומציה ומנוע תוספת לביצוע לאחר החיתוך.', en: 'New machine, full cutting, with automation and additional motor for post-cutting.' }, qty: 1, basePrice: 45000, discPct: 5 },
-    { code: 'GM-2200', name: { he: 'מכונה משופרת GELMINI', en: 'GELMINI Enhanced' }, desc: { he: 'מכונת אוטומציה, משופרת, הכוללת תוספת הינע הממשיך לפני לאחר החיתוך.', en: 'Enhanced automation machine with additional drive continuing before/after cutting.' }, qty: 2, basePrice: 38000, discAmt: 2000 },
-    { code: 'SD-301', name: { he: 'תוכנת חיתוך אוטומטי SODEVA', en: 'SODEVA Auto-Cut Software' }, desc: { he: 'תוכנת חיתוך אוטומטי לייעול הייצור של הפעילות התעשייתית.', en: 'Auto-cut software for industrial production optimization.' }, qty: 1, basePrice: 12500, discPct: 0 },
-  ];
-
-  function calcItem(item) {
-    const base = item.basePrice;
-    let price = base;
-    let discLabel = '';
-    if (item.discPct) { price = base * (1 - item.discPct/100); discLabel = item.discPct + '%'; }
-    else if (item.discAmt) { price = base - item.discAmt; discLabel = (lang === 'he' ? item.discAmt.toLocaleString() + ' ₪' : '₪' + item.discAmt.toLocaleString()); }
-    return { base, price, discLabel, lineTotal: price * item.qty, discTotal: (base - price) * item.qty };
-  }
-
-  function fmt(n) { return '₪' + Math.round(n).toLocaleString('he-IL'); }
-
-  function render() {
-    const t = T[lang];
-    const dir = lang === 'he' ? 'rtl' : 'ltr';
-    const calcs = items.map(calcItem);
-    const subtotal = calcs.reduce((s,c) => s + c.lineTotal, 0);
-    const totalDisc = calcs.reduce((s,c) => s + c.discTotal, 0);
-    const afterDisc = subtotal;
-    const vatAmt = afterDisc * 0.18;
-    const grand = afterDisc + vatAmt;
-
-    root.innerHTML = `
-    <div style="direction:${dir};font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;border:1px solid #C9A84C;border-radius:4px;overflow:hidden;max-width:780px;margin:0 auto;">
-
-      <!-- LANG TOGGLE -->
-      <div style="background:#0A0A0A;padding:8px 16px;display:flex;justify-content:flex-end;gap:8px;align-items:center;">
-        <span style="font-size:11px;color:#7A776F;font-family:inherit;">תצוגת תבנית:</span>
-        <button onclick="window._toggleQuoteLang()" style="font-family:inherit;font-size:11px;font-weight:600;padding:5px 14px;background:rgba(201,168,76,0.15);color:#C9A84C;border:1px solid rgba(201,168,76,0.35);border-radius:2px;cursor:pointer;">${t.lang_btn}</button>
+    <!-- form header -->
+    <div style="background:#111;border:1px solid #1E1E1E;border-radius:4px 4px 0 0;padding:16px 20px;display:flex;align-items:center;gap:12px;">
+      <div style="background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.3);padding:8px 12px;border-radius:3px;">
+        <div style="font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;font-weight:700;">CHIEF CXO</div>
       </div>
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--white);">טופס דיווח טכנאי שטח</div>
+        <div style="font-size:11px;color:var(--white-muted);">דיווח לאחר ביקור — הפנייה תיכנס לכרטסת הלקוח ב-CRM</div>
+      </div>
+    </div>
 
-      <!-- HEADER / LOGO -->
-      <div style="background:#1a1a2e;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div style="background:#161616;border:1px solid #1E1E1E;border-top:none;border-radius:0 0 4px 4px;padding:20px;">
+
+      <!-- Row 1: customer + visit type -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
         <div>
-          <div style="font-size:18px;font-weight:800;color:#C9A84C;letter-spacing:1px;">${t.company_name}</div>
-          <div style="font-size:11px;color:#aaa;margin-top:3px;">${t.company_sub}</div>
+          <label style="display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">לקוח <span style="color:#FF8080;">*</span></label>
+          <select id="tf_customer" style="width:100%;background:#111;border:1px solid #2A2A2A;color:var(--white);font-family:inherit;font-size:13px;padding:10px 12px;border-radius:2px;appearance:none;">
+            <option value="">— בחר לקוח —</option>
+            ${customers.map(c => `<option>${c}</option>`).join('')}
+          </select>
         </div>
-        <div style="font-size:10px;color:#aaa;text-align:${lang==='he'?'left':'right'};">
-          <div>${t.company_addr}</div>
-          <div>${t.company_contact}</div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">סוג ביקור <span style="color:#FF8080;">*</span></label>
+          <select id="tf_type" style="width:100%;background:#111;border:1px solid #2A2A2A;color:var(--white);font-family:inherit;font-size:13px;padding:10px 12px;border-radius:2px;appearance:none;">
+            <option value="">— בחר סוג —</option>
+            ${visitTypes.map(v => `<option>${v}</option>`).join('')}
+          </select>
         </div>
       </div>
 
-      <!-- QUOTE META + CLIENT INFO -->
+      <!-- Row 2: date + tech name -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">תאריך ביקור <span style="color:#FF8080;">*</span></label>
+          <input type="date" id="tf_date" style="width:100%;background:#111;border:1px solid #2A2A2A;color:var(--white);font-family:inherit;font-size:13px;padding:10px 12px;border-radius:2px;box-sizing:border-box;" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div>
+          <label style="display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">טכנאי מדווח</label>
+          <input type="text" id="tf_tech" placeholder="שם הטכנאי (ממולא אוטומטי)" style="width:100%;background:#0D0D0D;border:1px solid #1E1E1E;color:var(--white-muted);font-family:inherit;font-size:13px;padding:10px 12px;border-radius:2px;box-sizing:border-box;" value="רן גולן — טכנאי בכיר" readonly>
+        </div>
+      </div>
+
+      <!-- Row 3: assignees -->
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">ממוען לטיפול — אנשי צוות <span style="color:#FF8080;">*</span></label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;" id="tf_assignee_list">
+          ${teamMembers.map((m,i) => `
+          <label style="display:flex;align-items:center;gap:6px;background:#111;border:1px solid #2A2A2A;padding:7px 12px;border-radius:2px;cursor:pointer;font-size:12px;color:var(--white-dim);transition:all 0.15s;" onmouseover="this.style.borderColor='rgba(201,168,76,0.4)'" onmouseout="this.style.borderColor='#2A2A2A'">
+            <input type="checkbox" id="tf_a${i}" style="accent-color:#C9A84C;width:14px;height:14px;">
+            ${m}
+          </label>`).join('')}
+        </div>
+        <div style="font-size:10px;color:var(--white-muted);margin-top:6px;">✦ כל גורם מסומן יקבל התראה ב-CRM + יתויג במשימה</div>
+      </div>
+
+      <!-- Row 4: content -->
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">תוכן הפנייה / סיכום ביקור <span style="color:#FF8080;">*</span></label>
+        <textarea id="tf_content" rows="5" placeholder="פרט את מהלך הביקור, הממצאים, הצרכים שעלו והמלצות להמשך..." style="width:100%;background:#111;border:1px solid #2A2A2A;color:var(--white);font-family:inherit;font-size:13px;padding:12px;border-radius:2px;resize:vertical;line-height:1.7;box-sizing:border-box;"></textarea>
+      </div>
+
+      <!-- Row 5: follow-up -->
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;">פעולת המשך מוצעת</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${['הצעת מחיר','ביקור חוזר','טיפול שירות','אין פעולה נדרשת'].map(a => `
+          <label style="display:flex;align-items:center;gap:6px;background:#111;border:1px solid #2A2A2A;padding:7px 12px;border-radius:2px;cursor:pointer;font-size:12px;color:var(--white-dim);">
+            <input type="radio" name="tf_followup" value="${a}" style="accent-color:#C9A84C;">
+            ${a}
+          </label>`).join('')}
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <button onclick="submitTechForm()" style="width:100%;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:1px;padding:14px;background:linear-gradient(135deg,#9A7830,#C9A84C);color:#0A0A0A;border:none;border-radius:2px;cursor:pointer;text-transform:uppercase;">
+        ✦ שלח דיווח ← כרטסת לקוח ב-CRM
+      </button>
+
+      <!-- SUCCESS (hidden) -->
+      <div id="tf_success" style="display:none;margin-top:16px;background:rgba(80,200,120,0.08);border:1px solid rgba(80,200,120,0.3);padding:16px 20px;border-radius:2px;text-align:center;">
+        <div style="font-size:18px;margin-bottom:8px;">✓</div>
+        <div style="font-size:13px;font-weight:700;color:#50C878;margin-bottom:4px;">הדיווח נשלח בהצלחה!</div>
+        <div style="font-size:12px;color:var(--white-muted);">הפנייה נכנסה לכרטסת הלקוח — הגורמים הממוענים יקבלו התראה ב-CRM</div>
+      </div>
+
+    </div>
+  </div>`;
+
+  window.submitTechForm = function() {
+    const cust = document.getElementById('tf_customer').value;
+    const type = document.getElementById('tf_type').value;
+    const content = document.getElementById('tf_content').value;
+    if (!cust || !type || !content.trim()) {
+      alert('אנא מלא את כל שדות החובה (לקוח, סוג ביקור, תוכן פנייה)');
+      return;
+    }
+    document.getElementById('tf_success').style.display = 'block';
+    document.querySelector('#appendixTechRoot button').style.display = 'none';
+    setTimeout(() => {
+      document.getElementById('tf_success').style.display = 'none';
+      document.querySelector('#appendixTechRoot button').style.display = 'block';
+      document.getElementById('tf_customer').value = '';
+      document.getElementById('tf_type').value = '';
+      document.getElementById('tf_content').value = '';
+    }, 4000);
+  };
+};
+
+
+// ── Shared quote renderer ─────────────────────────────────
+window._buildAppendixQuoteFull = function() {
+  const root = document.getElementById('appendixQuoteRoot');
+  if (!root || root.innerHTML.trim()) return;
+  // clone the quote mock into this root
+  let lang = 'he';
+  const T = {
+    he: { lang_btn:'English Version', title:'הצעת מחיר', quoteNum:'מספר הצעה:', quoteDate:'תאריך:', quoteVer:'גרסה:', to:'לכבוד:', attn:'לידי:', vat_id:'ע"מ / ח"פ:', addr:'כתובת:', custCode:'קוד לקוח:', via:'באמצעות:', email_l:'דואל:', fax_l:'פקס:', mobile_l:'נייד:', subject:'נושא: הצעת מחיר לאספקת ציוד תעשייתי', col_code:'קוד', col_name:'שם פריט', col_desc:'תיאור', col_qty:'כמות', col_price:'מחיר', col_disc:'הנחה', col_total:'סה"כ', subtotal:'סה"כ חייב במע"מ:', disc_total:'הנחה כוללת:', after_disc:'סה"כ אחרי הנחה:', vat:'מע"מ 18%:', grand:'סה"כ לתשלום:', total_disc:'סה"כ הנחות:', terms_title:'תנאים והבהרות:', terms_text:'המחיר אינו כולל מכונות FAT למכונות בח"ל.\nהמחיר אינו כולל הובלה ועבודת התקנה.\nהמחירים עומדים לשינוי ללא הודעה מראש.', sign_line:'בברכה,', sign_company:'זומריך סוכנויות לציוד תעשייתי בע"מ', sign_name:'שחף שלו', sign_role:'סמנכ"ל', company_name:'SOMMERICH AGENCIES | זומריך סוכנויות', company_sub:'INDUSTRIAL EQUIPMENT LTD | ציוד תעשייתי בע"מ | 1958', company_addr:'ת.ד. 2017 נס ציונה | P.O. Box 2017 Ness-Ziona', company_contact:'טל: 08-9477634 | פקס: 08-9107725 | sommerich@bezeqint.net' },
+    en: { lang_btn:'גרסה עברית', title:'QUOTATION', quoteNum:'Quote No.:', quoteDate:'Date:', quoteVer:'Version:', to:'To:', attn:'Attn:', vat_id:'VAT / Co. No.:', addr:'Address:', custCode:'Customer Code:', via:'Via:', email_l:'Email:', fax_l:'Fax:', mobile_l:'Mobile:', subject:'Subject: Quotation for Industrial Equipment Supply', col_code:'Code', col_name:'Item Name', col_desc:'Description', col_qty:'Qty', col_price:'Price', col_disc:'Discount', col_total:'Total', subtotal:'Subtotal (ex. VAT):', disc_total:'Total Discount:', after_disc:'Total After Discount:', vat:'VAT 18%:', grand:'Grand Total:', total_disc:'Total Savings:', terms_title:'Terms & Conditions:', terms_text:'Prices do not include FAT for overseas machines.\nPrices do not include shipping or installation.\nPrices are subject to change without notice.', sign_line:'Best Regards,', sign_company:'Sommerich Agencies – Industrial Equipment Ltd', sign_name:'Shachaf Shelo', sign_role:'VP Sales', company_name:'SOMMERICH AGENCIES | זומריך סוכנויות', company_sub:'INDUSTRIAL EQUIPMENT LTD | ציוד תעשייתי בע"מ | 1958', company_addr:'P.O. Box 2017 Ness-Ziona | ת.ד. 2017 נס ציונה', company_contact:'Tel: 08-9477634 | Fax: 08-9107725 | sommerich@bezeqint.net' }
+  };
+  const items2 = [
+    { code:'GM-1100', name:{he:'מכונת GELMINI',en:'GELMINI Machine'}, desc:{he:'מכונה חדשה, חיתוך מלא, אוטומציה ומנוע תוספת.',en:'New machine, full cutting, automation and additional motor.'}, qty:1, basePrice:45000, discPct:5 },
+    { code:'GM-2200', name:{he:'מכונה משופרת GELMINI',en:'GELMINI Enhanced'}, desc:{he:'מכונת אוטומציה משופרת עם הינע רציף.',en:'Enhanced automation with continuous drive.'}, qty:2, basePrice:38000, discAmt:2000 },
+    { code:'SD-301', name:{he:'תוכנת SODEVA',en:'SODEVA Software'}, desc:{he:'תוכנת חיתוך אוטומטי לייעול ייצור.',en:'Auto-cut software for production optimization.'}, qty:1, basePrice:12500, discPct:0 },
+  ];
+  function calcI(it){ const b=it.basePrice; let p=b,d=''; if(it.discPct){p=b*(1-it.discPct/100);d=it.discPct+'%';}else if(it.discAmt){p=b-it.discAmt;d='₪'+it.discAmt.toLocaleString();} return{base:b,price:p,discLabel:d,lineTotal:p*it.qty,discTotal:(b-p)*it.qty}; }
+  function fmtN(n){return '₪'+Math.round(n).toLocaleString('he-IL');}
+  function renderQ(){
+    const t=T[lang]; const dir=lang==='he'?'rtl':'ltr';
+    const calcs=items2.map(calcI);
+    const sub=calcs.reduce((s,c)=>s+c.lineTotal,0);
+    const td=calcs.reduce((s,c)=>s+c.discTotal,0);
+    const vat=sub*0.18; const grand=sub+vat;
+    root.innerHTML=`<div style="direction:${dir};font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;border:1px solid #C9A84C;border-radius:4px;overflow:hidden;max-width:780px;margin:0 auto;">
+      <div style="background:#0A0A0A;padding:8px 16px;display:flex;justify-content:flex-end;"><button onclick="window._toggleAppendixQuoteLang()" style="font-family:inherit;font-size:11px;font-weight:600;padding:5px 14px;background:rgba(201,168,76,0.15);color:#C9A84C;border:1px solid rgba(201,168,76,0.35);border-radius:2px;cursor:pointer;">${t.lang_btn}</button></div>
+      <div style="background:#1a1a2e;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div><div style="font-size:18px;font-weight:800;color:#C9A84C;">${t.company_name}</div><div style="font-size:11px;color:#aaa;margin-top:3px;">${t.company_sub}</div></div>
+        <div style="font-size:10px;color:#aaa;text-align:${lang==='he'?'left':'right'};"><div>${t.company_addr}</div><div>${t.company_contact}</div></div>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:2px solid #C9A84C;">
-        <!-- client info -->
         <div style="padding:14px 20px;border-${lang==='he'?'left':'right'}:1px solid #eee;">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#C9A84C;text-transform:uppercase;margin-bottom:8px;">${t.to} / ${t.attn}</div>
-          <table style="font-size:12px;border-collapse:collapse;width:100%;">
-            <tr><td style="color:#666;padding:2px 8px 2px 0;white-space:nowrap;">${t.to}</td><td style="font-weight:600;">גלובל ציץ</td></tr>
-            <tr><td style="color:#666;padding:2px 8px 2px 0;">${t.attn}</td><td>ערן</td></tr>
-            <tr><td style="color:#666;padding:2px 8px 2px 0;">${t.vat_id}</td><td>514-XXX-XXX</td></tr>
-            <tr><td style="color:#666;padding:2px 8px 2px 0;">${t.addr}</td><td>רח' האלה 5, נס ציונה</td></tr>
-            <tr><td style="color:#666;padding:2px 8px 2px 0;">${t.custCode}</td><td style="font-family:monospace;background:#f5f5f5;padding:1px 4px;border-radius:2px;">C10452</td></tr>
-          </table>
-          <div style="margin-top:10px;font-size:11px;color:#555;">
-            <div><strong>${t.via}</strong></div>
-            <div>${t.email_l} eran@globaltzitz.co.il &nbsp;|&nbsp; ${t.mobile_l} 052-XXX-XXXX</div>
-          </div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#C9A84C;text-transform:uppercase;margin-bottom:8px;">${t.to} / ${t.attn}</div>
+          <table style="font-size:12px;border-collapse:collapse;width:100%;"><tr><td style="color:#666;padding:2px 8px 2px 0;white-space:nowrap;">${t.to}</td><td style="font-weight:600;">גלובל ציץ</td></tr><tr><td style="color:#666;padding:2px 8px 2px 0;">${t.attn}</td><td>ערן</td></tr><tr><td style="color:#666;padding:2px 8px 2px 0;">${t.vat_id}</td><td>514-XXX-XXX</td></tr><tr><td style="color:#666;padding:2px 8px 2px 0;">${t.addr}</td><td>רח' האלה 5, נס ציונה</td></tr><tr><td style="color:#666;padding:2px 8px 2px 0;">${t.custCode}</td><td style="font-family:monospace;background:#f5f5f5;padding:1px 4px;border-radius:2px;">C10452</td></tr></table>
+          <div style="margin-top:10px;font-size:11px;color:#555;"><div><strong>${t.via}</strong></div><div>${t.email_l} eran@globaltzitz.co.il &nbsp;|&nbsp; ${t.mobile_l} 052-XXX-XXXX</div></div>
         </div>
-        <!-- quote meta -->
         <div style="padding:14px 20px;background:#fafafa;">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#C9A84C;text-transform:uppercase;margin-bottom:8px;">${t.title}</div>
-          <table style="font-size:12px;border-collapse:collapse;">
-            <tr><td style="color:#666;padding:3px 12px 3px 0;white-space:nowrap;">${t.quoteNum}</td><td style="font-weight:700;color:#185FA5;font-family:monospace;">QUO-2026-138</td></tr>
-            <tr><td style="color:#666;padding:3px 12px 3px 0;">${t.quoteDate}</td><td>29/03/2026</td></tr>
-            <tr><td style="color:#666;padding:3px 12px 3px 0;">${t.quoteVer}</td>
-              <td><span style="background:#E1F5EE;color:#0F6E56;font-weight:700;font-size:11px;padding:2px 8px;border-radius:3px;border:1px solid #0F6E56;">גרסה A</span></td></tr>
-          </table>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#C9A84C;text-transform:uppercase;margin-bottom:8px;">${t.title}</div>
+          <table style="font-size:12px;border-collapse:collapse;"><tr><td style="color:#666;padding:3px 12px 3px 0;white-space:nowrap;">${t.quoteNum}</td><td style="font-weight:700;color:#185FA5;font-family:monospace;">QUO-2026-138</td></tr><tr><td style="color:#666;padding:3px 12px 3px 0;">${t.quoteDate}</td><td>29/03/2026</td></tr><tr><td style="color:#666;padding:3px 12px 3px 0;">${t.quoteVer}</td><td><span style="background:#E1F5EE;color:#0F6E56;font-weight:700;font-size:11px;padding:2px 8px;border-radius:3px;border:1px solid #0F6E56;">גרסה A</span></td></tr></table>
         </div>
       </div>
-
-      <!-- SUBJECT -->
       <div style="text-align:center;padding:10px;background:#f9f6ef;border-bottom:1px solid #eee;font-size:13px;font-weight:700;color:#854F0B;">${t.subject}</div>
-
-      <!-- ITEMS TABLE -->
-      <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;font-size:12px;">
-          <thead>
-            <tr style="background:#1a1a2e;color:#C9A84C;">
-              <th style="padding:9px 10px;text-align:${dir==='rtl'?'right':'left'};">${t.col_code}</th>
-              <th style="padding:9px 10px;text-align:${dir==='rtl'?'right':'left'};">${t.col_name}</th>
-              <th style="padding:9px 10px;text-align:${dir==='rtl'?'right':'left'};">${t.col_desc}</th>
-              <th style="padding:9px 10px;text-align:center;">${t.col_qty}</th>
-              <th style="padding:9px 10px;text-align:center;">${t.col_price}</th>
-              <th style="padding:9px 10px;text-align:center;">${t.col_disc}</th>
-              <th style="padding:9px 10px;text-align:center;">${t.col_total}</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${items.map((item, i) => {
-              const c = calcs[i];
-              const hasDisc = c.discLabel !== '';
-              return `<tr style="border-bottom:1px solid #eee;background:${i%2===0?'#fff':'#fafafa'};">
-                <td style="padding:8px 10px;font-family:monospace;font-size:11px;color:#185FA5;">${item.code}</td>
-                <td style="padding:8px 10px;font-weight:600;">${item.name[lang]}</td>
-                <td style="padding:8px 10px;color:#555;font-size:11px;max-width:200px;">${item.desc[lang]}</td>
-                <td style="padding:8px 10px;text-align:center;">${item.qty}</td>
-                <td style="padding:8px 10px;text-align:center;">
-                  ${hasDisc ? `<div style="text-decoration:line-through;color:#999;font-size:10px;">${fmt(c.base)}</div>` : ''}
-                  <div style="font-weight:600;color:${hasDisc?'#0F6E56':'#1a1a1a'};">${fmt(c.price)}</div>
-                </td>
-                <td style="padding:8px 10px;text-align:center;">
-                  ${hasDisc ? `<span style="background:#FCEBEB;color:#A32D2D;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:700;">${c.discLabel}</span>` : '<span style="color:#ccc;">—</span>'}
-                </td>
-                <td style="padding:8px 10px;text-align:center;font-weight:700;">${fmt(c.lineTotal)}</td>
-              </tr>`;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-
-      <!-- TOTALS -->
-      <div style="display:flex;justify-content:flex-end;padding:12px 20px 0;border-top:2px solid #C9A84C;">
-        <table style="font-size:12px;border-collapse:collapse;min-width:280px;">
-          <tr><td style="padding:4px 16px 4px 0;color:#555;">${t.subtotal}</td><td style="text-align:${dir==='rtl'?'left':'right'};font-weight:600;">${fmt(subtotal)}</td></tr>
-          <tr style="background:#FCEBEB;"><td style="padding:4px 16px 4px 0;color:#A32D2D;font-weight:600;">${t.disc_total}</td><td style="text-align:${dir==='rtl'?'left':'right'};font-weight:700;color:#A32D2D;">${fmt(totalDisc)}</td></tr>
-          <tr><td style="padding:4px 16px 4px 0;color:#555;">${t.after_disc}</td><td style="text-align:${dir==='rtl'?'left':'right'};font-weight:600;">${fmt(afterDisc)}</td></tr>
-          <tr><td style="padding:4px 16px 4px 0;color:#555;">${t.vat}</td><td style="text-align:${dir==='rtl'?'left':'right'};">${fmt(vatAmt)}</td></tr>
-          <tr style="background:#1a1a2e;"><td style="padding:8px 16px 8px 0;color:#C9A84C;font-weight:700;font-size:14px;">${t.grand}</td><td style="text-align:${dir==='rtl'?'left':'right'};font-weight:800;color:#C9A84C;font-size:14px;">${fmt(grand)}</td></tr>
-          <tr><td style="padding:4px 16px 4px 0;color:#888;font-size:11px;">${t.total_disc}</td><td style="text-align:${dir==='rtl'?'left':'right'};color:#0F6E56;font-size:11px;font-weight:600;">${fmt(totalDisc)}</td></tr>
-        </table>
-      </div>
-
-      <!-- TERMS -->
-      <div style="padding:14px 20px;border-top:1px solid #eee;margin-top:10px;">
-        <div style="font-size:11px;font-weight:700;color:#854F0B;margin-bottom:6px;">${t.terms_title}</div>
-        <div style="font-size:11px;color:#444;line-height:1.8;text-align:right;white-space:pre-line;">${t.terms_text}</div>
-      </div>
-
-      <!-- SIGNATURE -->
-      <div style="padding:14px 20px;border-top:2px solid #C9A84C;background:#fafafa;text-align:${dir==='rtl'?'right':'left'};">
-        <div style="font-size:12px;color:#333;line-height:2;">
-          <div>${t.sign_line}</div>
-          <div style="font-weight:700;">${t.sign_company}</div>
-          <div style="color:#185FA5;font-weight:600;">${t.sign_name}, ${lang==='he'?'תפקיד':'Role'}: ${t.sign_role}</div>
-        </div>
-      </div>
-
+      <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1a1a2e;color:#C9A84C;"><th style="padding:9px 10px;text-align:${dir==='rtl'?'right':'left'};">${t.col_code}</th><th style="padding:9px 10px;text-align:${dir==='rtl'?'right':'left'};">${t.col_name}</th><th style="padding:9px 10px;text-align:${dir==='rtl'?'right':'left'};">${t.col_desc}</th><th style="padding:9px 10px;text-align:center;">${t.col_qty}</th><th style="padding:9px 10px;text-align:center;">${t.col_price}</th><th style="padding:9px 10px;text-align:center;">${t.col_disc}</th><th style="padding:9px 10px;text-align:center;">${t.col_total}</th></tr></thead><tbody>${items2.map((item,i)=>{const c=calcs[i];const hd=c.discLabel!=='';return `<tr style="border-bottom:1px solid #eee;background:${i%2===0?'#fff':'#fafafa'};"><td style="padding:8px 10px;font-family:monospace;font-size:11px;color:#185FA5;">${item.code}</td><td style="padding:8px 10px;font-weight:600;">${item.name[lang]}</td><td style="padding:8px 10px;color:#555;font-size:11px;max-width:180px;">${item.desc[lang]}</td><td style="padding:8px 10px;text-align:center;">${item.qty}</td><td style="padding:8px 10px;text-align:center;">${hd?`<div style="text-decoration:line-through;color:#999;font-size:10px;">${fmtN(c.base)}</div>`:''}<div style="font-weight:600;color:${hd?'#0F6E56':'#1a1a1a'};">${fmtN(c.price)}</div></td><td style="padding:8px 10px;text-align:center;">${hd?`<span style="background:#FCEBEB;color:#A32D2D;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:700;">${c.discLabel}</span>`:'<span style="color:#ccc;">—</span>'}</td><td style="padding:8px 10px;text-align:center;font-weight:700;">${fmtN(c.lineTotal)}</td></tr>`;}).join('')}</tbody></table></div>
+      <div style="display:flex;justify-content:flex-end;padding:12px 20px 0;border-top:2px solid #C9A84C;"><table style="font-size:12px;border-collapse:collapse;min-width:280px;"><tr><td style="padding:4px 16px 4px 0;color:#555;">${t.subtotal}</td><td style="text-align:${dir==='rtl'?'left':'right'};font-weight:600;">${fmtN(sub)}</td></tr><tr style="background:#FCEBEB;"><td style="padding:4px 16px 4px 0;color:#A32D2D;font-weight:600;">${t.disc_total}</td><td style="text-align:${dir==='rtl'?'left':'right'};font-weight:700;color:#A32D2D;">${fmtN(td)}</td></tr><tr><td style="padding:4px 16px 4px 0;color:#555;">${t.after_disc}</td><td style="text-align:${dir==='rtl'?'left':'right'};font-weight:600;">${fmtN(sub)}</td></tr><tr><td style="padding:4px 16px 4px 0;color:#555;">${t.vat}</td><td style="text-align:${dir==='rtl'?'left':'right'};">${fmtN(vat)}</td></tr><tr style="background:#1a1a2e;"><td style="padding:8px 16px 8px 0;color:#C9A84C;font-weight:700;font-size:14px;">${t.grand}</td><td style="text-align:${dir==='rtl'?'left':'right'};font-weight:800;color:#C9A84C;font-size:14px;">${fmtN(grand)}</td></tr><tr><td style="padding:4px 16px 4px 0;color:#888;font-size:11px;">${t.total_disc}</td><td style="text-align:${dir==='rtl'?'left':'right'};color:#0F6E56;font-size:11px;font-weight:600;">${fmtN(td)}</td></tr></table></div>
+      <div style="padding:14px 20px;border-top:1px solid #eee;margin-top:10px;"><div style="font-size:11px;font-weight:700;color:#854F0B;margin-bottom:6px;">${t.terms_title}</div><div style="font-size:11px;color:#444;line-height:1.8;text-align:right;white-space:pre-line;">${t.terms_text}</div></div>
+      <div style="padding:14px 20px;border-top:2px solid #C9A84C;background:#fafafa;text-align:${dir==='rtl'?'right':'left'};"><div style="font-size:12px;color:#333;line-height:2;"><div>${t.sign_line}</div><div style="font-weight:700;">${t.sign_company}</div><div style="color:#185FA5;font-weight:600;">${t.sign_name}, ${lang==='he'?'תפקיד':'Role'}: ${t.sign_role}</div></div></div>
     </div>`;
   }
-
-  window._toggleQuoteLang = function() {
-    lang = lang === 'he' ? 'en' : 'he';
-    render();
-  };
-
-  render();
+  window._toggleAppendixQuoteLang = function(){ lang = lang==='he'?'en':'he'; renderQ(); };
+  renderQ();
 };
 
 // ══════════════════════════════════════════════
@@ -7274,7 +5675,17 @@ window._buildQuoteMock = function() {
 
 
 
+
 // ══════════════════════════════════════════════
+function showAppendixPanel(val) {
+  document.querySelectorAll('#chapter_appendix .query-panel').forEach(p => p.classList.remove('active'));
+  if (!val) return;
+  const panel = document.getElementById('app_' + val);
+  if (panel) panel.classList.add('active');
+  if (val === 'ap_quote' && window._buildAppendixQuoteFull) { setTimeout(window._buildAppendixQuoteFull, 50); }
+  if (val === 'ap_techform' && window._buildTechForm) { setTimeout(window._buildTechForm, 50); }
+}
+
 function activateChapter(id) {
   document.getElementById('welcomeScreen').style.display = 'none';
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
