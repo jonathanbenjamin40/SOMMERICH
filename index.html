@@ -876,7 +876,7 @@ document.getElementById('chapter_entities').innerHTML = `
     <thead><tr><th>כלל</th><th>פירוט</th></tr></thead>
     <tbody>
       <tr><td><span class="tag tag-blue">ארכיטקטורה</span></td><td>שליפה ישירה מ-Database Views — עקב נפחי מידע גבוהים</td></tr>
-      <tr><td><span class="tag tag-gold">חלון זמן</span></td><td>היסטוריה של <strong>שנתיים אחורה</strong> בלבד מיום הריצה — למניעת עומסי מערכת</td></tr>
+      <tr><td><span class="tag tag-gold">חלון זמן</span></td><td>היסטוריה של <strong>5 שנים אחורה</strong> בלבד מיום הריצה — למניעת עומסי מערכת</td></tr>
       <tr><td><span class="tag tag-green">Delta Sync</span></td><td>כל 15 דקות — מסמכים חדשים + מסמכים שסטטוס הפירעון/האספקה שלהם השתנה (לפי UpdateDate)</td></tr>
       <tr><td><span class="tag tag-red">נעילה</span></td><td>מסמכים בסטטוס "סגור" / "שולם" ב-SAP — ננעלים ב-CRM ל-Read-Only, ללא עדכון נוסף</td></tr>
     </tbody>
@@ -1071,7 +1071,7 @@ document.getElementById('chapter_entities').innerHTML = `
     T1.[LineTotal]  <span class="code-kw">AS</span> [Line_Total_Net]
 <span class="code-kw">FROM</span> ORDR T0
 <span class="code-kw">INNER JOIN</span> RDR1 T1 <span class="code-kw">ON</span> T0.[DocEntry] = T1.[DocEntry]
-<span class="code-kw">WHERE</span> T0.[DocDate] &gt;= <span class="code-fn">DATEADD</span>(<span class="code-str">year</span>, <span class="code-str">-2</span>, <span class="code-fn">GETDATE</span>());
+<span class="code-kw">WHERE</span> T0.[DocDate] &gt;= <span class="code-fn">DATEADD</span>(<span class="code-str">year</span>, <span class="code-str">-5</span>, <span class="code-fn">GETDATE</span>());
 <span class="code-cm">-- חלון 2 שנים אחורה</span></pre>
       </div>
     </div>
@@ -1124,7 +1124,7 @@ document.getElementById('chapter_entities').innerHTML = `
 <span class="code-kw">INNER JOIN</span> INV1 T1 <span class="code-kw">ON</span> T0.[DocEntry] = T1.[DocEntry]
 <span class="code-kw">LEFT  JOIN</span> OCTG T3 <span class="code-kw">ON</span> T0.[GroupNum] = T3.[GroupNum]
 <span class="code-kw">WHERE</span> T0.[DocType] = <span class="code-str">'I'</span>
-  <span class="code-kw">AND</span> T0.[DocDate]  &gt;= <span class="code-fn">DATEADD</span>(<span class="code-str">year</span>, <span class="code-str">-2</span>, <span class="code-fn">GETDATE</span>());</pre>
+  <span class="code-kw">AND</span> T0.[DocDate]  &gt;= <span class="code-fn">DATEADD</span>(<span class="code-str">year</span>, <span class="code-str">-5</span>, <span class="code-fn">GETDATE</span>());</pre>
       </div>
     </div>
 
@@ -2978,6 +2978,26 @@ document.getElementById('chapter_import_file').innerHTML = `
       <tr><td>מספר הזמנות לקוח מקושרות</td><td>Integer</td><td>מחושב</td></tr>
       <tr><td>סך חשבוניות מקושרות</td><td>Decimal</td><td>מחושב</td></tr>
       <tr><td>סטטוס תיק</td><td>Enum</td><td>ראה סעיף תחנות ניהול</td></tr>
+      <tr>
+        <td><strong>שער יורו לתיק</strong></td>
+        <td>Decimal (מטבע)</td>
+        <td>
+          <span class="tag tag-red">חדש</span>
+          שער EUR ייעודי לתיק זה — משפיע על כל חישובי העלות ברמת שורת פריט.<br>
+          <span style="font-size:11px;color:var(--white-muted);">
+          ▸ אם ריק / לא הוזן → המערכת תשתמש בשער EUR הנוכחי ממסך שערי המטח הפנימי של ה-CRM.<br>
+          ▸ אם הוזן ערך → כל חישובי יורו בתיק יתבצעו לפי שער זה בלבד.
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong style="color:var(--gold-light);">שער יורו לתיק</strong></td>
+        <td>Decimal (מטבע)</td>
+        <td><span class="tag tag-red">חדש</span>
+          שער EUR ייעודי לתיק — <strong>אם ריק:</strong> נלקח שער המערכת הפנימי.
+          <strong>אם מכיל ערך:</strong> כל חישובי EUR בתיק לפי שער זה בלבד.
+        </td>
+      </tr>
       <tr><td>נסגר ע"י</td><td>String + Timestamp</td><td>חותמת זמן + שם + תפקיד הסוגר</td></tr>
     </tbody>
   </table>
@@ -2985,7 +3005,80 @@ document.getElementById('chapter_import_file').innerHTML = `
 
 <!-- ─── 3. תחנות סטטוס ─── -->
 <div class="spec-section">
-  <div class="spec-section-title">3 — תחנות ניהול וסטטוסים (Lifecycle)</div>
+  <div class="spec-section">
+  <div class="spec-section-title">2b — לוגיקת שער יורו לתיק (EUR Rate Logic)</div>
+  <div class="info-box gold">
+    <strong>עיקרון:</strong> לכל תיק ייבוא שדה <code>שער יורו לתיק</code> מסוג Decimal עשרוני. שדה זה קובע את שער ההמרה לכל חישובי יורו ↔ שקל בתיק.
+  </div>
+  <div class="flow-steps" style="margin-top:12px;">
+    <div class="flow-step">
+      <div class="flow-step-num">1</div>
+      <div class="flow-step-content">
+        <div class="flow-step-title">שדה ריק / לא הוזן</div>
+        <div class="flow-step-desc">המערכת מושכת את שער EUR הנוכחי ממסך ניהול שערי המטח הפנימי של ה-CRM (ניתן לעדכון ע"י מנהל מערכת). כל חישובי יורו בתיק ישתמשו בשער זה.</div>
+      </div>
+      <div class="flow-step-tag"><span class="tag tag-blue">ברירת מחדל</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-num">2</div>
+      <div class="flow-step-content">
+        <div class="flow-step-title">שדה מכיל ערך</div>
+        <div class="flow-step-desc">כל חישובי יורו בתיק (עלות פריט, עלות שילוח, רווחיות) יתבצעו לפי השער הנקוב בתיק זה — <strong>עוקף את שערי המערכת הכלליים</strong>.</div>
+      </div>
+      <div class="flow-step-tag"><span class="tag tag-gold">שער ייעודי</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-num">3</div>
+      <div class="flow-step-content">
+        <div class="flow-step-title">חישוב שורת פריט</div>
+        <div class="flow-step-desc">
+          <code>מחיר בשקלים = מחיר בחשבונית ספק (ILS)</code><br>
+          <code>מחיר ביורו = מחיר בשקלים ÷ שער יורו לתיק</code><br>
+          עלות שילוח מפוזרת באחוז יחסי לפי אותו שער.
+        </div>
+      </div>
+      <div class="flow-step-tag"><span class="tag tag-green">חישוב</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="spec-section">
+  <div class="spec-section-title">2b — לוגיקת שער יורו לתיק (EUR Rate Logic)</div>
+  <div class="info-box gold">
+    <strong>עיקרון:</strong> שדה <code>שער יורו לתיק</code> — Decimal עשרוני — קובע את שער ההמרה לכל חישובי EUR בתיק.
+  </div>
+  <div class="flow-steps" style="margin-top:12px;">
+    <div class="flow-step">
+      <div class="flow-step-num">1</div>
+      <div class="flow-step-content">
+        <div class="flow-step-title">שדה ריק / לא הוזן</div>
+        <div class="flow-step-desc">המערכת שולפת את שער EUR ממסך שערי המטח הפנימי של ה-CRM. כל חישובי יורו בתיק ישתמשו בשער זה.</div>
+      </div>
+      <div class="flow-step-tag"><span class="tag tag-blue">ברירת מחדל</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-num">2</div>
+      <div class="flow-step-content">
+        <div class="flow-step-title">שדה מכיל ערך ייעודי</div>
+        <div class="flow-step-desc">כל חישובי EUR בתיק (עלות פריט, שילוח, רווחיות) מתבצעים לפי שער זה בלבד — <strong>עוקף את שערי המערכת הכלליים</strong>.</div>
+      </div>
+      <div class="flow-step-tag"><span class="tag tag-gold">שער ייעודי</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-num">3</div>
+      <div class="flow-step-content">
+        <div class="flow-step-title">נוסחת המרה בשורת פריט</div>
+        <div class="flow-step-desc">
+          <code>מחיר EUR = מחיר ILS ÷ שער יורו לתיק</code><br>
+          עלות שילוח מפוזרת אחוזית לפי אותו שער.
+        </div>
+      </div>
+      <div class="flow-step-tag"><span class="tag tag-green">חישוב</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="spec-section-title">3 — תחנות ניהול וסטטוסים (Lifecycle)</div>
   <div class="flow-steps">
     <div class="flow-step" style="border-right:3px solid var(--gold);">
       <div class="flow-step-num">1</div>
@@ -3108,349 +3201,472 @@ Customer_B_Shipping = (1500 / 5000) × 10000 = <span class="code-str">3,000 ₪<
   // Wait until chapter is activated before running
   window._buildImportDemoReady = true;
   window._runImportDemo = function() {
-  const root = document.getElementById('importDemoRoot');
+  var root = document.getElementById('importDemoRoot');
   if (!root) return;
 
-  // ── DATA ──
-  const file = {
-    id: 'IMP-2026-047', extId: 'GLOB-9934-IL', customsId: 'CM-7712',
-    shippingCost: 14200, eta: '2026-06-18', opened: '2026-05-15',
-    port: 'אשדוד', status: 'קליטה'
-  };
+  var EUR_RATE_FILE = 4.22;
+  var EUR_RATE_SYS  = 4.15;
+  var SHIPPING_COST = 14200;
 
-  const invoices = [
-    { id: 'INV-S-4401', vendor: 'GlobalParts GmbH', date: '2026-05-10', total: 28500, currency: 'EUR',
-      lines: [
-        { code: 'A00101', name: 'Slicing Blade XT-200', qty: 12, unitPrice: 1000, custOrders: [{cust:'לקוח כהן בע"מ', qty:5},{cust:'לקוח לוי מסחר',qty:4}], warehouseQty: 3 },
-        { code: 'A00102', name: 'Blade Guard Pro', qty: 8, unitPrice: 650, custOrders: [{cust:'לקוח כהן בע"מ', qty:8}], warehouseQty: 0 },
-        { code: 'A00103', name: 'Conveyor Belt R-50', qty: 6, unitPrice: 2200, custOrders: [], warehouseQty: 6 }
+  var file = { id:'IMP-2026-047', extId:'GLOB-9934-IL', customsId:'CM-7712',
+    shippingCost:SHIPPING_COST, eta:'2026-06-18', opened:'2026-05-15',
+    port:'אשדוד', status:'קליטה', eurRate:EUR_RATE_FILE };
+
+  var invoices = [
+    { id:'INV-S-4401', vendor:'GlobalParts GmbH', date:'2026-05-10', total:119310, currency:'ILS',
+      lines:[
+        { code:'A00101', name:'Slicing Blade XT-200',  qty:12, unitPriceILS:5000, custOrders:[{cust:'לקוח כהן',qty:5},{cust:'לוי מסחר',qty:4}], warehouseQty:3 },
+        { code:'A00102', name:'Blade Guard Pro',        qty:8,  unitPriceILS:3380, custOrders:[{cust:'לקוח כהן',qty:8}], warehouseQty:0 },
+        { code:'A00103', name:'Conveyor Belt R-50',     qty:6,  unitPriceILS:9300, custOrders:[], warehouseQty:6 }
       ]
     },
-    { id: 'INV-S-4402', vendor: 'TechMech Italia SRL', date: '2026-05-12', total: 15400, currency: 'EUR',
-      lines: [
-        { code: 'B00201', name: 'Drive Motor 3kW', qty: 4, unitPrice: 2800, custOrders: [{cust:'סופרמשקאות בע"מ', qty:3}], warehouseQty: 1 },
-        { code: 'B00202', name: 'Control Panel CP-7', qty: 10, unitPrice: 560, custOrders: [{cust:'סופרמשקאות בע"מ', qty:6},{cust:'מכלת אבנר',qty:4}], warehouseQty: 0 }
+    { id:'INV-S-4402', vendor:'TechMech Italia SRL', date:'2026-05-12', total:64820, currency:'ILS',
+      lines:[
+        { code:'B00201', name:'Drive Motor 3kW',        qty:4,  unitPriceILS:11810, custOrders:[{cust:'סופרמשקאות',qty:3}], warehouseQty:1 },
+        { code:'B00202', name:'Control Panel CP-7',     qty:10, unitPriceILS:2362, custOrders:[{cust:'סופרמשקאות',qty:6},{cust:'מכלת אבנר',qty:4}], warehouseQty:0 }
       ]
     }
   ];
 
-  const customerOrders = [
-    { id: 'SO-10821', customer: 'לקוח כהן בע"מ', date: '2026-04-28', total: 12500,
-      lines: [
-        { code: 'A00101', name: 'Slicing Blade XT-200', qty: 5, price: 1250 },
-        { code: 'A00102', name: 'Blade Guard Pro', qty: 8, price: 780 }
-      ]
-    },
-    { id: 'SO-10835', customer: 'לקוח לוי מסחר', date: '2026-05-02', total: 5800,
-      lines: [{ code: 'A00101', name: 'Slicing Blade XT-200', qty: 4, price: 1450 }]
-    },
-    { id: 'SO-10849', customer: 'סופרמשקאות בע"מ', date: '2026-05-05', total: 11760,
-      lines: [
-        { code: 'B00201', name: 'Drive Motor 3kW', qty: 3, price: 3200 },
-        { code: 'B00202', name: 'Control Panel CP-7', qty: 6, price: 700 }
-      ]
-    },
-    { id: 'SO-10861', customer: 'מכלת אבנר', date: '2026-05-08', total: 3200,
-      lines: [{ code: 'B00202', name: 'Control Panel CP-7', qty: 4, price: 800 }]
-    }
+  var customerOrders = [
+    { id:'SO-10821', customer:'לקוח כהן',     total:52750,
+      lines:[{code:'A00101',qty:5,priceILS:5275},{code:'A00102',qty:8,priceILS:3300}] },
+    { id:'SO-10835', customer:'לוי מסחר',     total:24380,
+      lines:[{code:'A00101',qty:4,priceILS:6095}] },
+    { id:'SO-10849', customer:'סופרמשקאות',   total:49680,
+      lines:[{code:'B00201',qty:3,priceILS:13520},{code:'B00202',qty:6,priceILS:2960}] },
+    { id:'SO-10861', customer:'מכלת אבנר',    total:13520,
+      lines:[{code:'B00202',qty:4,priceILS:3380}] }
   ];
 
-  const totalOrders = customerOrders.reduce((s,o) => s + o.total, 0); // 33260
+  var totalOrders = customerOrders.reduce(function(s,o){return s+o.total;},0);
 
-  // shipping per customer
-  const custShipping = {};
-  customerOrders.forEach(o => {
-    custShipping[o.customer] = ((o.total / totalOrders) * file.shippingCost).toFixed(0);
-  });
+  var viewMode = 'docs';
+  var expanded = {};
 
-  // ── STYLES INJECTION ──
-  const style = document.createElement('style');
-  style.textContent = `
-    .demo-wrap { font-family: 'Heebo', sans-serif; color: #C8C4BB; background: #0A0A0A; }
-    .demo-header { background: #111; border-bottom: 1px solid #1E1E1E; padding: 16px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .demo-file-id { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: #F5F2EC; font-weight: 700; }
-    .demo-meta { font-size: 11px; color: #7A776F; }
-    .demo-meta strong { color: #C9A84C; }
-    .demo-status-badge { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; padding: 5px 12px; border-radius: 2px; background: rgba(201,168,76,0.12); color: #C9A84C; border: 1px solid rgba(201,168,76,0.3); }
-    .demo-stats-row { background: #111; border-bottom: 1px solid #1E1E1E; padding: 10px 24px; display: flex; gap: 24px; flex-wrap: wrap; }
-    .demo-stat { font-size: 11px; color: #7A776F; }
-    .demo-stat strong { color: #E8C97A; font-size: 13px; }
-    .demo-toggle-row { padding: 12px 24px; display: flex; gap: 8px; background: #111; border-bottom: 1px solid #1E1E1E; }
-    .demo-toggle-btn { font-family: 'Heebo', sans-serif; font-size: 12px; font-weight: 600; padding: 8px 18px; border-radius: 2px; border: 1px solid #1E1E1E; cursor: pointer; transition: all 0.2s; background: #161616; color: #7A776F; }
-    .demo-toggle-btn.active { background: rgba(201,168,76,0.12); color: #C9A84C; border-color: rgba(201,168,76,0.3); }
-    .demo-view { padding: 0 24px 24px; }
-    /* Table */
-    .demo-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 12px; }
-    .demo-table th { background: #1A1A1A; color: #C9A84C; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; padding: 9px 12px; text-align: right; font-weight: 700; border-bottom: 1px solid #1E1E1E; }
-    .demo-table td { padding: 10px 12px; border-bottom: 1px solid #161616; vertical-align: middle; color: #C8C4BB; }
-    .demo-table tr.clickable { cursor: pointer; transition: background 0.15s; }
-    .demo-table tr.clickable:hover td { background: #181818; }
-    .demo-table tr.expanded-parent td { background: #141414; border-bottom: none; }
-    .demo-table tr.sub-row td { background: #101010; padding: 8px 12px; font-size: 11px; color: #7A776F; }
-    .demo-table tr.sub-row:last-child td { border-bottom: 2px solid #C9A84C22; }
-    .warehouse-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; background: rgba(255,90,90,0.1); color: #FF8080; border: 1px solid rgba(255,90,90,0.25); margin-right: 6px; }
-    .ok-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; background: rgba(80,200,120,0.08); color: #50C878; border: 1px solid rgba(80,200,120,0.2); }
-    .demo-section-header { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #C9A84C; padding: 20px 0 8px; display: flex; align-items: center; gap: 10px; }
-    .demo-section-header::after { content: ''; flex: 1; height: 1px; background: #1E1E1E; }
-    .demo-note-input { background: #1A1A1A; border: 1px dashed #2A2A2A; border-radius: 2px; color: #7A776F; font-size: 10px; padding: 5px 10px; font-family: 'Heebo', sans-serif; width: 180px; }
-    .demo-note-input:focus { outline: none; border-color: #C9A84C44; color: #C8C4BB; }
-    .arrow { transition: transform 0.2s; display: inline-block; margin-left: 6px; color: #C9A84C; }
-    .arrow.open { transform: rotate(90deg); }
-    .cost-cell { color: #E8C97A; font-weight: 600; }
-    .sub-label { font-size: 9px; color: #7A776F; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
-    .demo-params-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #1A1A1A; border-bottom: 1px solid #1E1E1E; }
-    .demo-param-cell { background: #111; padding: 12px 16px; transition: background 0.15s; }
-    .demo-param-cell:hover { background: #161616; }
-    .demo-param-label { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #7A776F; margin-bottom: 4px; }
-    .demo-param-val { font-size: 14px; font-weight: 700; color: #C8C4BB; margin-bottom: 3px; font-family: 'Cormorant Garamond', serif; }
-    .demo-param-val.gold { color: #E8C97A; }
-    .demo-param-desc { font-size: 10px; color: #555; line-height: 1.4; }
-  `;
-  document.head.appendChild(style);
+  function fmtILS(n){ return String.fromCharCode(8362)+Math.round(n).toLocaleString('he-IL'); }
+  function fmtEUR(n){ return String.fromCharCode(8364)+parseFloat(n).toFixed(2); }
+  function toEUR(ils){ return ils / file.eurRate; }
 
-  // ── RENDER ──
-  let viewMode = 'docs'; // 'docs' | 'items'
-  const expanded = new Set();
+  if (!document.getElementById('demo-styles-v2')) {
+    var st = document.createElement('style');
+    st.id = 'demo-styles-v2';
+    st.textContent = [
+      '.demo-wrap{font-family:Heebo,sans-serif;color:#C8C4BB;background:#0A0A0A;}',
+      '.demo-header{background:#111;border-bottom:1px solid #1E1E1E;padding:16px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}',
+      '.demo-file-id{font-size:20px;color:#F5F2EC;font-weight:700;}',
+      '.demo-meta{font-size:11px;color:#7A776F;} .demo-meta strong{color:#C9A84C;}',
+      '.demo-status-badge{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:2px;background:rgba(201,168,76,0.12);color:#C9A84C;border:1px solid rgba(201,168,76,0.3);}',
+      '.demo-pg{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#1A1A1A;border-bottom:1px solid #1E1E1E;}',
+      '.demo-pc{background:#111;padding:12px 16px;}',
+      '.demo-pl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#7A776F;margin-bottom:4px;}',
+      '.demo-pv{font-size:14px;font-weight:700;color:#C8C4BB;margin-bottom:3px;}',
+      '.demo-pv.gold{color:#E8C97A;} .demo-pv.eur{color:#50C878;}',
+      '.demo-pd{font-size:10px;color:#555;line-height:1.4;}',
+      '.demo-toggle-row{padding:12px 24px;display:flex;gap:8px;background:#111;border-bottom:1px solid #1E1E1E;flex-wrap:wrap;}',
+      '.demo-toggle-btn{font-family:Heebo,sans-serif;font-size:12px;font-weight:600;padding:8px 18px;border-radius:2px;border:1px solid #1E1E1E;cursor:pointer;transition:all 0.2s;background:#161616;color:#7A776F;}',
+      '.demo-toggle-btn.active{background:rgba(201,168,76,0.12);color:#C9A84C;border-color:rgba(201,168,76,0.3);}',
+      '.demo-view{padding:0 24px 24px;}',
+      '.demo-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:11.5px;}',
+      '.demo-table th{background:#1A1A1A;color:#C9A84C;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:8px 10px;text-align:right;font-weight:700;border-bottom:1px solid #1E1E1E;white-space:nowrap;}',
+      '.demo-table td{padding:8px 10px;border-bottom:1px solid #161616;vertical-align:middle;}',
+      '.demo-table tr.clickable{cursor:pointer;} .demo-table tr.clickable:hover td{background:#181818;}',
+      '.demo-table tr.sub-row td{background:#101010;font-size:11px;color:#7A776F;}',
+      '.wh-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:2px;background:rgba(255,90,90,0.1);color:#FF8080;border:1px solid rgba(255,90,90,0.25);}',
+      '.ok-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:2px;background:rgba(80,200,120,0.08);color:#50C878;border:1px solid rgba(80,200,120,0.2);}',
+      '.demo-section-hdr{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C9A84C;padding:18px 0 8px;display:flex;align-items:center;gap:10px;}',
+      '.demo-section-hdr::after{content:"";flex:1;height:1px;background:#1E1E1E;}',
+      '.demo-note{background:#1A1A1A;border:1px dashed #2A2A2A;border-radius:2px;color:#7A776F;font-size:10px;padding:4px 8px;font-family:Heebo,sans-serif;width:120px;}',
+      '.demo-note:focus{outline:none;border-color:rgba(201,168,76,0.4);color:#C8C4BB;}',
+      '.arrow{transition:transform 0.2s;display:inline-block;margin-left:5px;color:#C9A84C;}',
+      '.arrow.open{transform:rotate(90deg);}',
+      '.cc{color:#E8C97A;font-weight:600;} .ce{color:#A8E6CF;font-weight:600;}',
+      '.pp{color:#50C878;font-weight:700;} .pn{color:#FF8080;font-weight:700;} .pz{color:#C9A84C;font-weight:700;}',
+      '.pb-p{background:rgba(80,200,120,0.12);border:1px solid rgba(80,200,120,0.3);color:#50C878;font-size:10px;padding:2px 7px;border-radius:2px;}',
+      '.pb-n{background:rgba(255,90,90,0.10);border:1px solid rgba(255,90,90,0.25);color:#FF8080;font-size:10px;padding:2px 7px;border-radius:2px;}',
+      '.pb-z{background:rgba(201,168,76,0.10);border:1px solid rgba(201,168,76,0.25);color:#C9A84C;font-size:10px;padding:2px 7px;border-radius:2px;}',
+      '.wh-sum-tbl{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px;}',
+      '.wh-sum-tbl th{background:#1E1A12;color:#C9A84C;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:7px 10px;text-align:right;border-bottom:1px solid #2A2A2A;}',
+      '.wh-sum-tbl td{padding:7px 10px;border-bottom:1px solid #1A1A1A;color:#C8C4BB;background:#131313;}'
+    ].join('');
+    document.head.appendChild(st);
+  }
 
-  function fmt(n) { return Number(n).toLocaleString('he-IL') + ' ₪'; }
+  function buildProfitRows() {
+    var rows = [];
+    var totalAllILS = 0;
+    invoices.forEach(function(inv){ inv.lines.forEach(function(l){ totalAllILS += l.unitPriceILS * l.qty; }); });
+    invoices.forEach(function(inv) {
+      inv.lines.forEach(function(line) {
+        if (line.custOrders.length === 0) return;
+        var lineILS = line.unitPriceILS * line.qty;
+        var unitShipILS = (lineILS / totalAllILS) * SHIPPING_COST / line.qty;
+        line.custOrders.forEach(function(co) {
+          var salePriceILS = 0;
+          customerOrders.forEach(function(so) {
+            if (so.customer === co.cust) {
+              so.lines.forEach(function(sol) { if (sol.code === line.code) salePriceILS = sol.priceILS; });
+            }
+          });
+          var costILS   = line.unitPriceILS * co.qty;
+          var saleILS   = salePriceILS * co.qty;
+          var shipILS   = unitShipILS * co.qty;
+          var profitILS = saleILS - costILS - shipILS;
+          rows.push({
+            code: line.code, name: line.name, customer: co.cust, qty: co.qty,
+            costILS:   costILS,   costEUR:   toEUR(costILS),
+            saleILS:   saleILS,   saleEUR:   toEUR(saleILS),
+            shipILS:   shipILS,   shipEUR:   toEUR(shipILS),
+            profitILS: profitILS, profitEUR: toEUR(profitILS)
+          });
+        });
+      });
+    });
+    return rows;
+  }
+
+  function buildWarehouseItems() {
+    var items = [];
+    invoices.forEach(function(inv) {
+      inv.lines.forEach(function(line) {
+        if (line.warehouseQty > 0) {
+          items.push({ code:line.code, name:line.name, warehouseQty:line.warehouseQty,
+            unitCostILS:line.unitPriceILS,
+            totalCostILS:line.unitPriceILS*line.warehouseQty,
+            totalCostEUR:toEUR(line.unitPriceILS*line.warehouseQty),
+            vendor:inv.vendor });
+        }
+      });
+    });
+    return items;
+  }
 
   function renderHeader() {
-    const totalInvAmt = invoices.reduce((s,v) => s + v.total, 0);
-    const hasWarehouse = invoices.some(inv => inv.lines.some(l => l.warehouseQty > 0));
-    return `<div class="demo-header">
-      <div>
-        <div class="demo-file-id">📁 ${file.id}</div>
-        <div class="demo-meta" style="margin-top:4px;">
-          נמל יעד: <strong>${file.port}</strong> &nbsp;|&nbsp; סטטוס: <strong>${file.status}</strong>
-        </div>
-      </div>
-      <div class="demo-status-badge">● ${file.status}</div>
-    </div>
-    <div class="demo-params-grid">
-      <div class="demo-param-cell">
-        <div class="demo-param-label">מספר תיק פנימי</div>
-        <div class="demo-param-val gold">${file.id}</div>
-        <div class="demo-param-desc">מספר סידורי אוטומטי — מופק ע"י ה-CRM</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">מספר תיק חיצוני</div>
-        <div class="demo-param-val">${file.extId}</div>
-        <div class="demo-param-desc">נומרטור רשמי של זומריך מול הספק</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">תיק עמיל מכס</div>
-        <div class="demo-param-val">${file.customsId}</div>
-        <div class="demo-param-desc">מזהה אצל חברת עמילות המכס</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">עלות ייבוא כוללת</div>
-        <div class="demo-param-val gold">${fmt(file.shippingCost)}</div>
-        <div class="demo-param-desc">לוגיסטיקה + שילוח + מכס (ILS)</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">תאריך פתיחת תיק</div>
-        <div class="demo-param-val">${file.opened}</div>
-        <div class="demo-param-desc">תאריך הקמת התיק ב-CRM</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">ETA — הגעה משוערת</div>
-        <div class="demo-param-val" style="color:#7EB8FF;">${file.eta}</div>
-        <div class="demo-param-desc">נחיתת האונייה/מטוס בארץ — קריטי למכירות</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">יעד נמל</div>
-        <div class="demo-param-val">${file.port}</div>
-        <div class="demo-param-desc">נמל היעד של המשלוח</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">מספר הזמנות לקוח</div>
-        <div class="demo-param-val gold">${customerOrders.length}</div>
-        <div class="demo-param-desc">מונה הזמנות לקוח מקושרות לתיק</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">סך הזמנות לקוחות</div>
-        <div class="demo-param-val gold">${fmt(totalOrders)}</div>
-        <div class="demo-param-desc">שווי עסקאות מקושרות (EUR/ILS)</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">מספר חשבוניות ספק</div>
-        <div class="demo-param-val">${invoices.length}</div>
-        <div class="demo-param-desc">מונה חשבוניות רכש בתיק</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">סך חשבוניות ספק</div>
-        <div class="demo-param-val">${totalInvAmt.toLocaleString()} EUR</div>
-        <div class="demo-param-desc">שווי רכש כולל במט"ח</div>
-      </div>
-      <div class="demo-param-cell">
-        <div class="demo-param-label">מכיל הזמנת מחסן?</div>
-        <div class="demo-param-val" style="color:${hasWarehouse ? '#FF8080' : '#50C878'};">${hasWarehouse ? 'כן ✓' : 'לא'}</div>
-        <div class="demo-param-desc">אינדיקטור Boolean — פריטים למלאי שוטף</div>
-      </div>
-    </div>`;
+    var totalInvAmt = invoices.reduce(function(s,v){return s+v.total;},0);
+    var hasWH = invoices.some(function(inv){return inv.lines.some(function(l){return l.warehouseQty>0;});});
+    var eurDisp = file.eurRate
+      ? (file.eurRate.toFixed(2) + ' <small style="color:#50C878;">(ייעודי לתיק)</small>')
+      : (EUR_RATE_SYS.toFixed(2) + ' <small style="color:#7A776F;">(שער מערכת)</small>');
+    var h = '';
+    h += '<div class="demo-header">';
+    h += '<div><div class="demo-file-id">FILE ' + file.id + '</div>';
+    h += '<div class="demo-meta" style="margin-top:4px;">נמל: <strong>' + file.port + '</strong></div></div>';
+    h += '<div class="demo-status-badge">&#9679; ' + file.status + '</div></div>';
+    h += '<div class="demo-pg">';
+    var cells = [
+      ['מספר תיק פנימי', '<span class="gold">' + file.id + '</span>', 'מספר סידורי CRM'],
+      ['מספר תיק חיצוני', file.extId, 'נומרטור רשמי'],
+      ['תיק עמיל מכס', file.customsId, 'חברת עמילות'],
+      ['עלות ייבוא', '<span class="gold">' + fmtILS(file.shippingCost) + '</span>', 'שילוח + מכס'],
+      ['תאריך פתיחה', file.opened, 'הקמת תיק ב-CRM'],
+      ['ETA', '<span style="color:#7EB8FF;">' + file.eta + '</span>', 'נחיתה בנמל'],
+      ['יעד נמל', file.port, 'נמל יעד'],
+      ['הזמנות לקוח', '<span class="gold">' + customerOrders.length + '</span>', 'מקושרות לתיק'],
+      ['סך הזמנות', '<span class="gold">' + fmtILS(totalOrders) + '</span>', 'שווי עסקאות'],
+      ['חשבוניות ספק', invoices.length, 'מקושרות לתיק'],
+      ['סך חשבוניות', fmtILS(totalInvAmt), 'שווי רכש'],
+      ['שער יורו לתיק', '<span class="eur">' + eurDisp + '</span>', 'משפיע על כל חישובי EUR']
+    ];
+    cells.forEach(function(c) {
+      h += '<div class="demo-pc"><div class="demo-pl">' + c[0] + '</div>';
+      h += '<div class="demo-pv">' + c[1] + '</div>';
+      h += '<div class="demo-pd">' + c[2] + '</div></div>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  function renderProfitTable() {
+    var rows = buildProfitRows();
+    var totCost=0, totSale=0, totShip=0, totProfit=0;
+    rows.forEach(function(r){ totCost+=r.costILS; totSale+=r.saleILS; totShip+=r.shipILS; totProfit+=r.profitILS; });
+
+    var h = '<div style="overflow-x:auto;padding:0 24px 24px;">';
+    h += '<div class="demo-section-hdr">' + "\u05E0\u05D9\u05EA\u05D5\u05D7 \u05E8\u05D5\u05D5\u05D7\u05D9\u05D5\u05EA \u2014 \u05E9\u05D5\u05E8\u05D4 \u05DC\u05DB\u05DC \u05DC\u05E7\u05D5\u05D7 \u05DC\u05DB\u05DC \u05E4\u05E8\u05D9\u05D8" + '</div>';
+    h += '<div class="info-box blue" style="font-size:11px;padding:10px 14px;margin-bottom:12px;">';
+    h += '<strong>' + "\u05E8\u05D5\u05D5\u05D7 = \u05DE\u05DB\u05D9\u05E8\u05D4 \u05DC\u05DC\u05E7\u05D5\u05D7 &minus; \u05E2\u05DC\u05D5\u05EA \u05E8\u05DB\u05D9\u05E9\u05D4 \u05E1\u05E4\u05E7 &minus; \u05E2\u05DC\u05D5\u05EA \u05E9\u05D9\u05DC\u05D5\u05D7 \u05D9\u05D7\u05E1\u05D9\u05EA\u05D9\u05EA." + '</strong> ';
+    h += "\u05E2\u05DC\u05D5\u05EA \u05E9\u05D9\u05DC\u05D5\u05D7 \u05DE\u05E4\u05D5\u05D6\u05E8\u05EA \u05DC\u05E4\u05D9 \u05DE\u05E9\u05E7\u05DC \u05E2\u05E8\u05DA \u05D4\u05E1\u05D7\u05D5\u05E8\u05D4. ";
+    h += "\u05E4\u05E8\u05D9\u05D8\u05D9 \u05DE\u05D7\u05E1\u05DF \u05DC\u05D0 \u05DE\u05D5\u05E6\u05D2\u05D9\u05DD. \u05E9\u05E2\u05E8 EUR \u05DC\u05EA\u05D9\u05E7: <strong>" + fmtILS(file.eurRate) + "</strong></div>";
+
+    // Table with horizontal scroll — all columns visible
+    h += '<table style="width:100%;border-collapse:collapse;font-size:11.5px;min-width:900px;">';
+    h += '<thead><tr style="background:#1A1A1A;">';
+    var cols = [
+      ["\u05DE\u05E7\"\u05D8",          "90px"],
+      ["\u05E9\u05DD \u05E4\u05E8\u05D9\u05D8",       "130px"],
+      ["\u05DC\u05E7\u05D5\u05D7",            "90px"],
+      ["\u05DB\u05DE\u05D5\u05EA",           "50px"],
+      ["\u05E2\u05DC\u05D5\u05EA \u05E7\u05E0\u05D9\u05D9\u05D4\nILS", "90px"],
+      ["\u05E2\u05DC\u05D5\u05EA \u05E7\u05E0\u05D9\u05D9\u05D4\nEUR", "90px"],
+      ["\u05DE\u05DB\u05D9\u05E8\u05D4 \u05DC\u05DC\u05E7\u05D5\u05D7\nILS", "100px"],
+      ["\u05DE\u05DB\u05D9\u05E8\u05D4 \u05DC\u05DC\u05E7\u05D5\u05D7\nEUR", "90px"],
+      ["\u05E2\u05DC\u05D5\u05EA \u05E9\u05D9\u05DC\u05D5\u05D7\nILS", "90px"],
+      ["\u05E2\u05DC\u05D5\u05EA \u05E9\u05D9\u05DC\u05D5\u05D7\nEUR", "85px"],
+      ["\u05E8\u05D5\u05D5\u05D7 \u05E0\u05D8\u05D5\nILS", "100px"],
+      ["\u05E8\u05D5\u05D5\u05D7 \u05E0\u05D8\u05D5\nEUR", "90px"],
+      ["\u05E1\u05D8\u05D8\u05D5\u05E1",          "60px"]
+    ];
+    cols.forEach(function(c){
+      h += '<th style="color:#C9A84C;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:8px 8px;text-align:right;border-bottom:1px solid #1E1E1E;white-space:pre-line;width:' + c[1] + ';">' + c[0] + '</th>';
+    });
+    h += '</tr></thead><tbody>';
+
+    rows.forEach(function(r) {
+      var pILS = r.profitILS;
+      var arrow = pILS > 50
+        ? '<span style="font-size:18px;color:#50C878;line-height:1;">&#9650;</span>'
+        : pILS < -50
+          ? '<span style="font-size:18px;color:#FF6B6B;line-height:1;">&#9660;</span>'
+          : '<span style="font-size:14px;color:#C9A84C;line-height:1;">=</span>';
+      var pc = pILS > 50 ? '#50C878' : pILS < -50 ? '#FF6B6B' : '#C9A84C';
+      h += '<tr style="border-bottom:1px solid #161616;">';
+      h += '<td style="padding:8px;font-family:monospace;color:#C9A84C;font-size:11px;">' + r.code + '</td>';
+      h += '<td style="padding:8px;color:#F5F2EC;">' + r.name + '</td>';
+      h += '<td style="padding:8px;">' + r.customer + '</td>';
+      h += '<td style="padding:8px;text-align:center;">' + r.qty + '</td>';
+      h += '<td style="padding:8px;color:#E8C97A;font-weight:600;">' + fmtILS(r.costILS) + '</td>';
+      h += '<td style="padding:8px;color:#A8E6CF;">' + fmtEUR(r.costEUR) + '</td>';
+      h += '<td style="padding:8px;color:#A8C4A2;font-weight:600;">' + fmtILS(r.saleILS) + '</td>';
+      h += '<td style="padding:8px;color:#A8E6CF;">' + fmtEUR(r.saleEUR) + '</td>';
+      h += '<td style="padding:8px;color:#C9A844;">' + fmtILS(r.shipILS) + '</td>';
+      h += '<td style="padding:8px;color:#A8C4E6;">' + fmtEUR(r.shipEUR) + '</td>';
+      h += '<td style="padding:8px;color:' + pc + ';font-weight:800;font-size:13px;">' + (pILS >= 0 ? '+' : '') + fmtILS(pILS) + '</td>';
+      h += '<td style="padding:8px;color:' + pc + ';font-weight:600;">' + (r.profitEUR >= 0 ? '+' : '') + fmtEUR(r.profitEUR) + '</td>';
+      h += '<td style="padding:8px;text-align:center;">' + arrow + '</td>';
+      h += '</tr>';
+    });
+
+    // Summary row
+    var totArrow = totProfit > 0
+      ? '<span style="font-size:18px;color:#50C878;">&#9650;</span>'
+      : '<span style="font-size:18px;color:#FF6B6B;">&#9660;</span>';
+    var totColor = totProfit > 0 ? '#50C878' : '#FF6B6B';
+    h += '<tr style="background:#1A1A1A;border-top:2px solid rgba(201,168,76,0.3);">';
+    h += '<td colspan="4" style="padding:10px 8px;color:#C9A84C;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">' + "\u05E1\u05D9\u05DB\u05D5\u05DD \u05DB\u05DC\u05DC\u05D9" + '</td>';
+    h += '<td style="padding:10px 8px;color:#E8C97A;font-weight:800;">' + fmtILS(totCost) + '</td>';
+    h += '<td style="padding:10px 8px;color:#A8E6CF;">' + fmtEUR(toEUR(totCost)) + '</td>';
+    h += '<td style="padding:10px 8px;color:#A8C4A2;font-weight:800;">' + fmtILS(totSale) + '</td>';
+    h += '<td style="padding:10px 8px;color:#A8E6CF;">' + fmtEUR(toEUR(totSale)) + '</td>';
+    h += '<td style="padding:10px 8px;color:#C9A844;font-weight:800;">' + fmtILS(totShip) + '</td>';
+    h += '<td style="padding:10px 8px;color:#A8C4E6;">' + fmtEUR(toEUR(totShip)) + '</td>';
+    h += '<td style="padding:10px 8px;color:' + totColor + ';font-weight:900;font-size:14px;">' + (totProfit >= 0 ? '+' : '') + fmtILS(totProfit) + '</td>';
+    h += '<td style="padding:10px 8px;color:' + totColor + ';font-weight:700;">' + (toEUR(totProfit) >= 0 ? '+' : '') + fmtEUR(toEUR(totProfit)) + '</td>';
+    h += '<td style="padding:10px 8px;text-align:center;">' + totArrow + '</td>';
+    h += '</tr>';
+    h += '</tbody></table></div>';
+    return h;
+  }
+
+  function renderWarehouseTable() {
+    var items = buildWarehouseItems();
+    if (!items.length) return '';
+    var h = '<div class="demo-view" style="padding-top:0;">';
+    h += '<div class="demo-section-hdr">סיכום פריטי מחסן</div>';
+    h += '<div class="info-box gold" style="font-size:11px;padding:10px 14px;margin-bottom:12px;">';
+    h += 'פריטים שהגיעו ללא הזמנת לקוח תואמת — מיועדים למחסן 1.</div>';
+    h += '<table class="wh-sum-tbl"><thead><tr>';
+    ['מק"ט','שם פריט','ספק','כמות למחסן','עלות יחידה (ILS)','סה"כ (ILS)','סה"כ (EUR)'].forEach(function(t){ h += '<th>' + t + '</th>'; });
+    h += '</tr></thead><tbody>';
+    var totILS = 0, totEUR = 0, totQty = 0;
+    items.forEach(function(i) {
+      totILS += i.totalCostILS; totEUR += i.totalCostEUR; totQty += i.warehouseQty;
+      h += '<tr>';
+      h += '<td style="font-family:monospace;color:#C9A84C;">' + i.code + '</td>';
+      h += '<td style="color:#F5F2EC;">' + i.name + '</td>';
+      h += '<td style="color:#7A776F;">' + i.vendor + '</td>';
+      h += '<td style="text-align:center;"><span class="wh-tag">' + i.warehouseQty + ' יח"מ</span></td>';
+      h += '<td class="cc">' + fmtILS(i.unitCostILS) + '</td>';
+      h += '<td class="cc">' + fmtILS(i.totalCostILS) + '</td>';
+      h += '<td class="ce">' + fmtEUR(i.totalCostEUR) + '</td>';
+      h += '</tr>';
+    });
+    h += '<tr style="background:#1A1A1A;border-top:1px solid #C9A84C44;">';
+    h += '<td colspan="3" style="color:#C9A84C;font-weight:700;font-size:9px;letter-spacing:1px;text-transform:uppercase;">סה"כ מחסן</td>';
+    h += '<td style="text-align:center;font-weight:700;color:#FF8080;">' + totQty + ' יח"מ</td>';
+    h += '<td></td>';
+    h += '<td class="cc" style="font-weight:800;">' + fmtILS(totILS) + '</td>';
+    h += '<td class="ce" style="font-weight:800;">' + fmtEUR(totEUR) + '</td>';
+    h += '</tr>';
+    h += '</tbody></table></div>';
+    return h;
   }
 
   function renderDocsView() {
-    let html = '<div class="demo-view">';
-
-    // INVOICES
-    html += '<div class="demo-section-header">חשבוניות ספקים מקושרות</div>';
-    html += '<table class="demo-table"><thead><tr><th>#</th><th>ספק</th><th>תאריך</th><th>סכום</th><th>לקוחות מקושרים</th><th>הערת מחסנאי</th></tr></thead><tbody>';
-    invoices.forEach((inv, i) => {
-      const isOpen = expanded.has('inv-' + i);
-      const custNames = [...new Set(inv.lines.flatMap(l => l.custOrders.map(c => c.cust)))];
-      const hasWarehouse = inv.lines.some(l => l.warehouseQty > 0);
-      html += `<tr class="clickable ${isOpen ? 'expanded-parent' : ''}" onclick="toggleDemo('inv-${i}')">
-        <td><span class="arrow ${isOpen ? 'open' : ''}">▶</span> <strong style="color:#F5F2EC;">${inv.id}</strong></td>
-        <td>${inv.vendor}</td>
-        <td>${inv.date}</td>
-        <td class="cost-cell">${inv.total.toLocaleString()} ${inv.currency}</td>
-        <td>${custNames.map(c => `<span style="font-size:10px;background:#1A1A1A;padding:2px 6px;border-radius:2px;margin-left:4px;">${c}</span>`).join('')}
-            ${hasWarehouse ? '<span class="warehouse-tag">+מחסן</span>' : ''}</td>
-        <td><input class="demo-note-input" placeholder="הוסף הערה..." onclick="event.stopPropagation()"></td>
-      </tr>`;
+    var totalAllILS = 0;
+    invoices.forEach(function(inv){ inv.lines.forEach(function(l){ totalAllILS += l.unitPriceILS * l.qty; }); });
+    var h = '<div class="demo-view">';
+    h += '<div class="demo-section-hdr">חשבוניות ספקים מקושרות</div>';
+    h += '<table class="demo-table"><thead><tr>';
+    ['#','ספק','תאריך','סכום (ILS)','סכום (EUR)','לקוחות','הערה'].forEach(function(t){ h += '<th>' + t + '</th>'; });
+    h += '</tr></thead><tbody>';
+    invoices.forEach(function(inv, i) {
+      var key = 'inv' + i;
+      var isOpen = !!expanded[key];
+      var custNames = [];
+      inv.lines.forEach(function(l){ l.custOrders.forEach(function(c){ if (custNames.indexOf(c.cust) < 0) custNames.push(c.cust); }); });
+      var hasWH = inv.lines.some(function(l){ return l.warehouseQty > 0; });
+      var invEUR = toEUR(inv.total);
+      h += '<tr class="clickable" onclick="window.demoToggle(\'' + key + '\')">'; 
+      h += '<td><span class="arrow' + (isOpen ? ' open' : '') + '">&#9658;</span> <strong style="color:#F5F2EC;">' + inv.id + '</strong></td>';
+      h += '<td>' + inv.vendor + '</td><td>' + inv.date + '</td>';
+      h += '<td class="cc">' + fmtILS(inv.total) + '</td>';
+      h += '<td class="ce">' + fmtEUR(invEUR) + '</td>';
+      h += '<td>' + custNames.map(function(c){ return '<span style="font-size:10px;background:#1A1A1A;padding:1px 5px;border-radius:2px;">' + c + '</span>'; }).join(' ') + (hasWH ? ' <span class="wh-tag">+מחסן</span>' : '') + '</td>';
+      h += '<td><input class="demo-note" placeholder="הוסף הערה..." onclick="event.stopPropagation()"></td>';
+      h += '</tr>';
       if (isOpen) {
-        html += `<tr class="sub-row"><td colspan="6">
-          <div class="sub-label">שורות פריטים בחשבונית</div>
-          <table style="width:100%;font-size:11px;margin-top:6px;">
-            <tr style="color:#7A776F;">
-              <td style="padding:4px 8px;">מק"ט</td><td style="padding:4px 8px;">שם פריט</td>
-              <td style="padding:4px 8px;">כמות בחשבונית</td><td style="padding:4px 8px;">כמות ללקוחות</td>
-              <td style="padding:4px 8px;">יעד</td>
-            </tr>
-            ${inv.lines.map(l => {
-              const coveredQty = l.custOrders.reduce((s,c) => s+c.qty, 0);
-              const custStr = l.custOrders.map(c => `${c.cust} (${c.qty})`).join(', ');
-              const warehouseStr = l.warehouseQty > 0 ? `<span class="warehouse-tag">+מחסן ${l.warehouseQty} יח'</span>` : '<span class="ok-tag">מכוסה</span>';
-              return `<tr>
-                <td style="padding:4px 8px;color:#C9A84C;">${l.code}</td>
-                <td style="padding:4px 8px;color:#F5F2EC;">${l.name}</td>
-                <td style="padding:4px 8px;">${l.qty} יח'</td>
-                <td style="padding:4px 8px;">${custStr || '—'}</td>
-                <td style="padding:4px 8px;">${warehouseStr}</td>
-              </tr>`;
-            }).join('')}
-          </table>
-        </td></tr>`;
+        h += '<tr class="sub-row"><td colspan="7"><table style="width:100%;font-size:11px;"><thead><tr style="color:#7A776F;">';
+        ['מק"ט','שם','כמות','מחיר יח (ILS)','מחיר יח (EUR)','עלות שורה (ILS)','עלות שורה (EUR)','שילוח שורה (ILS)','שילוח שורה (EUR)','יעד'].forEach(function(t){ h += '<td style="padding:3px 8px;">' + t + '</td>'; });
+        h += '</tr>';
+        inv.lines.forEach(function(l) {
+          var lineILS = l.unitPriceILS * l.qty;
+          var lineEUR = toEUR(lineILS);
+          var unitEUR = toEUR(l.unitPriceILS);
+          var shipLine = (lineILS / totalAllILS) * SHIPPING_COST;
+          var wTag = l.warehouseQty > 0 ? '<span class="wh-tag">+מחסן ' + l.warehouseQty + '</span>' : '<span class="ok-tag">מכוסה</span>';
+          h += '<tr>';
+          h += '<td style="padding:3px 8px;color:#C9A84C;">' + l.code + '</td>';
+          h += '<td style="padding:3px 8px;color:#F5F2EC;">' + l.name + '</td>';
+          h += '<td style="padding:3px 8px;">' + l.qty + '</td>';
+          h += '<td style="padding:3px 8px;color:#E8C97A;">' + fmtILS(l.unitPriceILS) + '</td>';
+          h += '<td style="padding:3px 8px;color:#A8E6CF;">' + fmtEUR(unitEUR) + '</td>';
+          h += '<td style="padding:3px 8px;color:#E8C97A;">' + fmtILS(lineILS) + '</td>';
+          h += '<td style="padding:3px 8px;color:#A8E6CF;">' + fmtEUR(lineEUR) + '</td>';
+          h += '<td style="padding:3px 8px;color:#7A776F;">' + fmtILS(shipLine) + '</td>';
+          h += '<td style="padding:3px 8px;color:#7A776F;">' + fmtEUR(toEUR(shipLine)) + '</td>';
+          h += '<td style="padding:3px 8px;">' + wTag + '</td>';
+          h += '</tr>';
+        });
+        h += '</table></td></tr>';
       }
     });
-    html += '</tbody></table>';
+    h += '</tbody></table>';
 
-    // CUSTOMER ORDERS
-    html += '<div class="demo-section-header" style="margin-top:8px;">הזמנות לקוחות מקושרות</div>';
-    html += '<table class="demo-table"><thead><tr><th>#</th><th>לקוח</th><th>תאריך</th><th>סך הזמנה</th><th>חלק שילוח</th><th>הערת מחסנאי</th></tr></thead><tbody>';
-    customerOrders.forEach((o, i) => {
-      const isOpen = expanded.has('ord-' + i);
-      const pct = ((o.total / totalOrders) * 100).toFixed(1);
-      html += `<tr class="clickable ${isOpen ? 'expanded-parent' : ''}" onclick="toggleDemo('ord-${i}')">
-        <td><span class="arrow ${isOpen ? 'open' : ''}">▶</span> <strong style="color:#F5F2EC;">${o.id}</strong></td>
-        <td>${o.customer}</td>
-        <td>${o.date}</td>
-        <td class="cost-cell">${fmt(o.total)}</td>
-        <td class="cost-cell" style="font-size:11px;">${fmt(custShipping[o.customer])} <span style="color:#7A776F;">(${pct}%)</span></td>
-        <td><input class="demo-note-input" placeholder="הוסף הערה..." onclick="event.stopPropagation()"></td>
-      </tr>`;
+    h += '<div class="demo-section-hdr" style="margin-top:8px;">הזמנות לקוחות מקושרות</div>';
+    h += '<table class="demo-table"><thead><tr>';
+    ['#','לקוח','תאריך','סך (ILS)','סך (EUR)','חלק שילוח','הערה'].forEach(function(t){ h += '<th>' + t + '</th>'; });
+    h += '</tr></thead><tbody>';
+    customerOrders.forEach(function(o, i) {
+      var key = 'ord' + i;
+      var isOpen = !!expanded[key];
+      var pct = ((o.total / totalOrders) * 100).toFixed(1);
+      var ship = (o.total / totalOrders) * SHIPPING_COST;
+      h += '<tr class="clickable" onclick="window.demoToggle(\'' + key + '\')">';
+      h += '<td><span class="arrow' + (isOpen ? ' open' : '') + '">&#9658;</span> <strong style="color:#F5F2EC;">' + o.id + '</strong></td>';
+      h += '<td>' + o.customer + '</td>';
+      h += '<td>' + (o.date || '—') + '</td>';
+      h += '<td class="cc">' + fmtILS(o.total) + '</td>';
+      h += '<td class="ce">' + fmtEUR(toEUR(o.total)) + '</td>';
+      h += '<td class="cc" style="font-size:11px;">' + fmtILS(ship) + ' <span style="color:#7A776F;">(' + pct + '%)</span></td>';
+      h += '<td><input class="demo-note" placeholder="הוסף הערה..." onclick="event.stopPropagation()"></td>';
+      h += '</tr>';
       if (isOpen) {
-        html += `<tr class="sub-row"><td colspan="6">
-          <div class="sub-label">שורות פריטים בהזמנה</div>
-          <table style="width:100%;font-size:11px;margin-top:6px;">
-            <tr style="color:#7A776F;"><td style="padding:4px 8px;">מק"ט</td><td style="padding:4px 8px;">שם פריט</td><td style="padding:4px 8px;">כמות</td><td style="padding:4px 8px;">מחיר יח'</td><td style="padding:4px 8px;">סה"כ</td></tr>
-            ${o.lines.map(l => `<tr>
-              <td style="padding:4px 8px;color:#C9A84C;">${l.code}</td>
-              <td style="padding:4px 8px;color:#F5F2EC;">${l.name}</td>
-              <td style="padding:4px 8px;">${l.qty} יח'</td>
-              <td style="padding:4px 8px;">${fmt(l.price)}</td>
-              <td style="padding:4px 8px;color:#E8C97A;">${fmt(l.qty * l.price)}</td>
-            </tr>`).join('')}
-          </table>
-        </td></tr>`;
+        h += '<tr class="sub-row"><td colspan="7"><table style="width:100%;font-size:11px;"><thead><tr style="color:#7A776F;">';
+        ['מק"ט','שם','כמות','מחיר יח (ILS)','מחיר יח (EUR)','סה"כ (ILS)','סה"כ (EUR)'].forEach(function(t){ h += '<td style="padding:3px 8px;">' + t + '</td>'; });
+        h += '</tr>';
+        o.lines.forEach(function(l) {
+          h += '<tr>';
+          h += '<td style="padding:3px 8px;color:#C9A84C;">' + l.code + '</td>';
+          h += '<td style="padding:3px 8px;color:#F5F2EC;">' + l.name + '</td>';
+          h += '<td style="padding:3px 8px;">' + l.qty + '</td>';
+          h += '<td style="padding:3px 8px;color:#A8C4A2;">' + fmtILS(l.priceILS) + '</td>';
+          h += '<td style="padding:3px 8px;color:#A8E6CF;">' + fmtEUR(toEUR(l.priceILS)) + '</td>';
+          h += '<td style="padding:3px 8px;color:#E8C97A;">' + fmtILS(l.qty * l.priceILS) + '</td>';
+          h += '<td style="padding:3px 8px;color:#A8E6CF;">' + fmtEUR(toEUR(l.qty * l.priceILS)) + '</td>';
+          h += '</tr>';
+        });
+        h += '</table></td></tr>';
       }
     });
-    html += '</tbody></table></div>';
-    return html;
+    h += '</tbody></table></div>';
+    h += renderProfitTable();
+    h += renderWarehouseTable();
+    return h;
   }
 
   function renderItemsView() {
-    // Aggregate all lines by itemCode across invoices
-    const itemMap = {};
-    invoices.forEach(inv => {
-      inv.lines.forEach(l => {
+    var itemMap = {};
+    var totalAllILS = 0;
+    invoices.forEach(function(inv){ inv.lines.forEach(function(l){ totalAllILS += l.unitPriceILS * l.qty; }); });
+    invoices.forEach(function(inv) {
+      inv.lines.forEach(function(l) {
         if (!itemMap[l.code]) {
-          itemMap[l.code] = { code: l.code, name: l.name, totalQtyInvoiced: 0, custOrders: [], warehouseQty: 0, invoices: [] };
+          itemMap[l.code] = { code:l.code, name:l.name, totalQty:0, custOrders:[], warehouseQty:0, invoiceIds:[], unitPriceILS:l.unitPriceILS };
         }
-        itemMap[l.code].totalQtyInvoiced += l.qty;
+        itemMap[l.code].totalQty += l.qty;
         itemMap[l.code].warehouseQty += l.warehouseQty;
-        l.custOrders.forEach(c => {
-          const ex = itemMap[l.code].custOrders.find(x => x.cust === c.cust);
-          if (ex) ex.qty += c.qty; else itemMap[l.code].custOrders.push({...c});
+        l.custOrders.forEach(function(c) {
+          var ex = null;
+          itemMap[l.code].custOrders.forEach(function(x){ if(x.cust === c.cust) ex = x; });
+          if (ex) ex.qty += c.qty; else itemMap[l.code].custOrders.push({cust:c.cust, qty:c.qty});
         });
-        if (!itemMap[l.code].invoices.includes(inv.id)) itemMap[l.code].invoices.push(inv.id);
+        if (itemMap[l.code].invoiceIds.indexOf(inv.id) < 0) itemMap[l.code].invoiceIds.push(inv.id);
       });
     });
 
-    let html = '<div class="demo-view">';
-    html += '<table class="demo-table"><thead><tr><th>מק"ט</th><th>שם פריט</th><th>כמות כוללת</th><th>מקושר ללקוחות</th><th>יעד</th><th>חשבוניות</th><th>הערת מחסנאי</th></tr></thead><tbody>';
-
-    Object.values(itemMap).forEach((item, i) => {
-      const isOpen = expanded.has('itm-' + i);
-      const coveredQty = item.custOrders.reduce((s,c) => s+c.qty, 0);
-      const warehouseStr = item.warehouseQty > 0
-        ? `<span class="warehouse-tag">+מחסן ${item.warehouseQty} יח'</span>`
-        : '<span class="ok-tag">מכוסה במלואו</span>';
-      const fullWarehouse = coveredQty === 0;
-
-      html += `<tr class="clickable ${isOpen ? 'expanded-parent' : ''}" onclick="toggleDemo('itm-${i}')">
-        <td><span class="arrow ${isOpen ? 'open' : ''}">▶</span> <strong style="color:#C9A84C;">${item.code}</strong></td>
-        <td style="color:#F5F2EC;">${item.name}</td>
-        <td>${item.totalQtyInvoiced} יח'</td>
-        <td style="font-size:11px;">${fullWarehouse ? '<span style="color:#FF8080;">ללא הזמנת לקוח</span>' : item.custOrders.map(c=>`${c.cust} (${c.qty})`).join('<br>')}</td>
-        <td>${fullWarehouse ? '<span class="warehouse-tag">מחסן בלבד</span>' : warehouseStr}</td>
-        <td style="font-size:10px;color:#7A776F;">${item.invoices.join(', ')}</td>
-        <td><input class="demo-note-input" placeholder="הוסף הערה..." onclick="event.stopPropagation()"></td>
-      </tr>`;
-
+    var h = '<div class="demo-view">';
+    h += '<table class="demo-table"><thead><tr>';
+    ['מק"ט','שם פריט','כמות','עלות יח (ILS)','עלות יח (EUR)','עלות כוללת (ILS)','עלות כוללת (EUR)','שילוח (ILS)','שילוח (EUR)','לקוחות','יעד','הערה'].forEach(function(t){ h += '<th>' + t + '</th>'; });
+    h += '</tr></thead><tbody>';
+    Object.keys(itemMap).forEach(function(code, i) {
+      var item = itemMap[code];
+      var key = 'itm' + i;
+      var isOpen = !!expanded[key];
+      var lineILS = item.unitPriceILS * item.totalQty;
+      var shipLine = (lineILS / totalAllILS) * SHIPPING_COST;
+      var wTag = item.warehouseQty > 0 ? '<span class="wh-tag">+מחסן ' + item.warehouseQty + '</span>' : '<span class="ok-tag">מכוסה</span>';
+      var fullWH = item.custOrders.length === 0;
+      h += '<tr class="clickable" onclick="window.demoToggle(\'' + key + '\')">';
+      h += '<td><span class="arrow' + (isOpen ? ' open' : '') + '">&#9658;</span> <strong style="color:#C9A84C;">' + item.code + '</strong></td>';
+      h += '<td style="color:#F5F2EC;">' + item.name + '</td>';
+      h += '<td style="text-align:center;">' + item.totalQty + '</td>';
+      h += '<td class="cc">' + fmtILS(item.unitPriceILS) + '</td>';
+      h += '<td class="ce">' + fmtEUR(toEUR(item.unitPriceILS)) + '</td>';
+      h += '<td class="cc">' + fmtILS(lineILS) + '</td>';
+      h += '<td class="ce">' + fmtEUR(toEUR(lineILS)) + '</td>';
+      h += '<td style="color:#7A776F;">' + fmtILS(shipLine) + '</td>';
+      h += '<td style="color:#7A776F;">' + fmtEUR(toEUR(shipLine)) + '</td>';
+      h += '<td style="font-size:10px;">' + (fullWH ? '<span style="color:#FF8080;">מחסן בלבד</span>' : item.custOrders.map(function(c){ return c.cust+'('+c.qty+')'; }).join(', ')) + '</td>';
+      h += '<td>' + (fullWH ? '<span class="wh-tag">מחסן</span>' : wTag) + '</td>';
+      h += '<td><input class="demo-note" placeholder="הוסף הערה..." onclick="event.stopPropagation()"></td>';
+      h += '</tr>';
       if (isOpen) {
-        html += `<tr class="sub-row"><td colspan="7">
-          <div class="sub-label">פירוט שיוך לקוחות לפריט זה</div>
-          <table style="width:100%;font-size:11px;margin-top:6px;">
-            <tr style="color:#7A776F;"><td style="padding:4px 8px;">לקוח</td><td style="padding:4px 8px;">כמות להזמנה</td><td style="padding:4px 8px;">הערות</td></tr>
-            ${item.custOrders.map(c => `<tr>
-              <td style="padding:4px 8px;color:#F5F2EC;">${c.cust}</td>
-              <td style="padding:4px 8px;">${c.qty} יח'</td>
-              <td style="padding:4px 8px;color:#50C878;">✓ מכוסה</td>
-            </tr>`).join('')}
-            ${item.warehouseQty > 0 ? `<tr>
-              <td style="padding:4px 8px;color:#FF8080;">מחסן זומריך</td>
-              <td style="padding:4px 8px;color:#FF8080;">${item.warehouseQty} יח'</td>
-              <td style="padding:4px 8px;color:#FF8080;">ללא הזמנת לקוח תואמת</td>
-            </tr>` : ''}
-          </table>
-        </td></tr>`;
+        h += '<tr class="sub-row"><td colspan="12"><table style="width:100%;font-size:11px;">';
+        h += '<tr style="color:#7A776F;"><td style="padding:3px 8px;">לקוח</td><td style="padding:3px 8px;">כמות</td><td style="padding:3px 8px;">סטטוס</td></tr>';
+        item.custOrders.forEach(function(c) {
+          h += '<tr><td style="padding:3px 8px;color:#F5F2EC;">' + c.cust + '</td><td style="padding:3px 8px;">' + c.qty + '</td><td style="padding:3px 8px;color:#50C878;">&#10003; מכוסה</td></tr>';
+        });
+        if (item.warehouseQty > 0) {
+          h += '<tr><td style="padding:3px 8px;color:#FF8080;">מחסן זומריך</td><td style="padding:3px 8px;color:#FF8080;">' + item.warehouseQty + '</td><td style="padding:3px 8px;color:#FF8080;">ללא הזמנה</td></tr>';
+        }
+        h += '</table></td></tr>';
       }
     });
-    html += '</tbody></table></div>';
-    return html;
+    h += '</tbody></table></div>';
+    h += renderProfitTable();
+    h += renderWarehouseTable();
+    return h;
   }
 
   function render() {
-    root.innerHTML = `<div class="demo-wrap">
-      ${renderHeader()}
-      <div class="demo-toggle-row">
-        <button class="demo-toggle-btn ${viewMode === 'docs' ? 'active' : ''}" onclick="setDemoView('docs')">📄 תצוגה לפי הזמנות וחשבוניות</button>
-        <button class="demo-toggle-btn ${viewMode === 'items' ? 'active' : ''}" onclick="setDemoView('items')">🔩 תצוגה לפי שורות פריט</button>
-      </div>
-      ${viewMode === 'docs' ? renderDocsView() : renderItemsView()}
-    </div>`;
+    var html = '<div class="demo-wrap">' + renderHeader();
+    html += '<div class="demo-toggle-row">';
+    html += ['<button class="demo-toggle-btn', (viewMode === 'docs' ? ' active' : ''), '" onclick="setDemoView(', String.fromCharCode(39), 'docs', String.fromCharCode(39), ')">',
+    String.fromCharCode(0x1F4C4), ' לפי הזמנות וחשבוניות',
+    '</button>'].join('');
+    html += ['<button class="demo-toggle-btn', (viewMode === 'items' ? ' active' : ''), '" onclick="setDemoView(', String.fromCharCode(39), 'items', String.fromCharCode(39), ')">',
+    String.fromCharCode(0x1F528), ' לפי שורות פריט',
+    '</button>'].join('');
+    html += '</div>';
+    html += viewMode === 'docs' ? renderDocsView() : renderItemsView();
+    html += '</div>';
+    root.innerHTML = html;
   }
 
-  window.setDemoView = function(mode) { viewMode = mode; expanded.clear(); render(); };
-  window.toggleDemo = function(key) {
-    if (expanded.has(key)) expanded.delete(key); else expanded.add(key);
-    render();
-  };
-
+  window.setDemoView = function(m){ viewMode = m; expanded = {}; render(); };
+  window.demoToggle = function(k){ expanded[k] = !expanded[k]; render(); };
   render();
-  }; // end _runImportDemo
+}; // end _runImportDemo
 })();
 
 // ══════════════════════════════════════════════
@@ -4685,7 +4901,7 @@ document.getElementById('chapter_migration').innerHTML = `
       <tr>
         <td><strong>היסטוריית חשבוניות ומסמכים</strong></td>
         <td><code>OINV + INV1</code></td>
-        <td><span class="tag tag-blue">שנתיים אחורה בלבד</span> מיום Go-Live</td>
+        <td><span class="tag tag-blue">5 שנים אחורה בלבד</span> מיום Go-Live</td>
         <td><span class="tag tag-blue">צוות CRM</span></td>
       </tr>
     </tbody>
