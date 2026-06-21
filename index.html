@@ -351,6 +351,7 @@ const sections = [
   {
     groupLabel: "נספחים",
     items: [
+      { id: "vendor_response", num: "23b", text: "מענה נותני שירות / ספקים", badge: "✓", badgeClass: "filled" },
       { id: "glossary",  num: "24", text: "מילון מונחים", badge: "✓", badgeClass: "filled" },
       { id: "appendix",  num: "25", text: "נספחים ומסמכים תומכים", badge: "✓", badgeClass: "filled" },
     ]
@@ -5878,7 +5879,291 @@ window._buildAppendixQuoteFull = function() {
 };
 
 // ══════════════════════════════════════════════
+//  CHAPTER 23b — מענה נותני שירות / ספקים
+// ══════════════════════════════════════════════
+var specRows = [
+  ["07", "ניהול לקוחות", "סנכרון נתוני לקוח מ-SAP", "שדות ליבה: CardCode, CardName, CardType", "א"],
+  ["07", "ניהול לקוחות", "מסגרת אשראי (Credit_Limit)", "שליפה מ-OCRD.CreditLine", "א"],
+  ["07", "ניהול לקוחות", "יתרת חוב פתוח (Balance_Due_To_Pay)", "חישוב מ-OCRD.Balance", "א"],
+  ["07", "ניהול לקוחות", "קבוצת לקוח (OCRG)", "פילטר דיוור וקמפיינים", "א"],
+  ["07", "ניהול לקוחות", "ענף פעילות (OIND)", "פילטר דיוור", "א"],
+  ["07", "ניהול לקוחות", "תנאי תשלום (Payment_Terms / OCTG)", "בסיס לאוטומציות גבייה", "א"],
+  ["07", "ניהול לקוחות", "כתובת חיוב ומשלוח (CRD1)", "Bill-to / Ship-to", "א"],
+  ["07", "ניהול לקוחות", "מחירון מיוחד לקוח (OSPP)", "Anti-Double Discount Logic", "א"],
+  ["07", "ניהול לקוחות", "Full Load לילי 02:00", "רענון כלל רשומות", "א"],
+  ["07", "ניהול לקוחות", "Delta Sync כל 15 דקות", "UpdateDate / CreateDate", "א"],
+  ["08", "היסטוריית עסקאות", "שליפת חשבוניות מכירה (OINV+INV1)", "5 שנים אחורה", "א"],
+  ["08", "היסטוריית עסקאות", "שליפת הזמנות לקוח (ORDR+RDR1)", "5 שנים אחורה", "א"],
+  ["08", "היסטוריית עסקאות", "פרופורמה (Proforma Invoice)", "בסיס לאוטומציות גבייה", "א"],
+  ["09", "אנשי קשר", "סנכרון OCPR — Contact Persons", "שם, מייל, נייד, תפקיד", "א"],
+  ["09", "אנשי קשר", "Contact_Direct_Email", "מייל ישיר לשליחה", "א"],
+  ["10", "הצעות מחיר", "יצירת הצעה + גרסאות A/B/C", "Versioning", "א"],
+  ["10", "הצעות מחיר", "מנוע תמחור — מכפיל סיווג", "קוד 1=x2, 2=x3, 3=x2.4", "א"],
+  ["10", "הצעות מחיר", "Anti-Double Discount (OSPP)", "חסימת הנחת כותרת על שורות OSPP", "א"],
+  ["10", "הצעות מחיר", "הנחה ברמת שורה (% ו-שקל קבוע)", "2 סוגי הנחה", "א"],
+  ["10", "הצעות מחיר", "חיתום דיגיטלי + ארכוב PDF", "שליחה + לכידה + נעילה", "א"],
+  ["10", "הצעות מחיר", "שידור הזמנה משוריינת ל-SAP", "Service Layer API", "א"],
+  ["10", "הצעות מחיר", "תבנית הצעה עברית + אנגלית", "מבנה זהה, שפה שונה", "א"],
+  ["11", "קטלוג פריטים", "סנכרון OITM — קטלוג מוצרים", "ItemCode, ItemName, PriceList=1", "א"],
+  ["11", "קטלוג פריטים", "CRM_Calculated_Sale_Price", "מחיר מכירה מחושב SQL", "א"],
+  ["11", "קטלוג פריטים", "VW_CRM_SpecialPrices_Sync", "OSPP + OCRD", "א"],
+  ["12", "ניהול ספקים", "סנכרון ספקים OCRD(S)", "CardType=S", "א"],
+  ["12", "ניהול ספקים", "אנשי קשר ספק (OCPR)", "מייל ישיר לספק בחול", "א"],
+  ["13", "תיק ייבוא", "פתיחת תיק ייבוא", "מספר פנימי + חיצוני", "א"],
+  ["13", "תיק ייבוא", "שדה שער יורו לתיק", "Decimal — עוקף שער מערכת", "א"],
+  ["13", "תיק ייבוא", "5 תחנות ניהול (Lifecycle)", "בניית תיק שילוח קליטה מחסן אישור", "א"],
+  ["13", "תיק ייבוא", "פיזור עלויות שילוח לפי ערך סחורה", "Landed Cost Logic", "א"],
+  ["13", "תיק ייבוא", "זיהוי פריטי מחסן (+מחסן)", "פריטים ללא הזמנת לקוח", "א"],
+  ["13", "תיק ייבוא", "Append-Only Notes ברמת שורה", "שם + תפקיד + timestamp", "א"],
+  ["13", "תיק ייבוא", "ניתוח רווחיות שורה לכל לקוח", "עלות + שילוח + רווח נטו", "א"],
+  ["13", "תיק ייבוא", "עלות ILS ו-EUR לכל שורת פריט", "לפי שער יורו לתיק", "א"],
+  ["13", "תיק ייבוא", "סיכום פריטי מחסן בסיום תיק", "שורה לפריט עם כמות", "א"],
+  ["14", "שאילתות", "לקוחות ללא פעילות X ימים", "Dormant Customers", "א"],
+  ["14", "שאילתות", "לקוחות שחרגו ממסגרת אשראי", "Credit Limit Breach", "א"],
+  ["14", "שאילתות", "הצעות פתוחות מעל 48 שעות", "ממתין לחיתום", "א"],
+  ["14", "שאילתות", "חשבוניות פתוחות לפי לקוח ותאריך", "גבייה", "א"],
+  ["15", "דוחות", "דשבורד מנהלים — KPIs", "Revenue / Receivables / Orders", "א"],
+  ["15", "דוחות", "דוח גבייה — Aging", "30/60/90/90+ יום", "א"],
+  ["15", "דוחות", "דוח רווחיות לפי תיק ייבוא", "עלות vs מכירה", "א"],
+  ["17", "אינטגרציות SAP", "SAP B1 — Master Data Source", "מקור נתונים בלעדי", "א"],
+  ["17", "אינטגרציות SAP", "SQL Views — שליפה בלבד", "Read via VW_CRM_*", "א"],
+  ["17", "אינטגרציות SAP", "Service Layer API — כתיבה בלבד", "REST/JSON", "א"],
+  ["17", "אינטגרציות SAP", "Webhook — חיתום דיגיטלי", "Event-Driven", "א"],
+  ["17b", "כלים חיצוניים", "Google Workspace — Gmail", "Email Tracking + Timeline", "א"],
+  ["17b", "כלים חיצוניים", "Google Workspace — Calendar", "Two-Way Sync", "א"],
+  ["17b", "כלים חיצוניים", "Microsoft 365 — Outlook", "Email Tracking + Timeline", "א"],
+  ["17b", "כלים חיצוניים", "Microsoft 365 — Calendar", "Two-Way Sync", "א"],
+  ["17b", "כלים חיצוניים", "WhatsApp Business API", "Template Messages", "ב"],
+  ["17b", "כלים חיצוניים", "WhatsApp Business Chat", "צ\'אט דו-כיווני", "ב"],
+  ["17b", "כלים חיצוניים", "WhatsApp BOT", "ניתוב פניות", "ב"],
+  ["17b", "כלים חיצוניים", "מרכזייה (PBX / CTI)", "Caller ID + Click-to-Call", "עתידי"],
+  ["18", "מיגרציה", "מיגרציית לקוחות מ-SAP", "מלאה עם היסטוריה 5 שנים", "א"],
+  ["18", "מיגרציה", "מיגרציית פריטים וקטלוג", "כולל מחירונים מיוחדים", "א"],
+  ["18", "מיגרציה", "QA + Reconciliation לאחר מיגרציה", "בדיקת תקינות", "א"],
+  ["20b", "מחולל דיוור", "Audience Builder — 6 קריטריוני סינון", "קהל דינמי", "א"],
+  ["20b", "מחולל דיוור", "קמפיין רץ (Trigger-Based)", "לקוח חדש / רדום / לא חתם", "א"],
+  ["20b", "מחולל דיוור", "דיוור תקופתי (Scheduled)", "יומי/שבועי/חודשי", "א"],
+  ["20b", "מחולל דיוור", "דיוור לפי דרישה (On-Demand)", "שליחה ידנית", "א"],
+  ["20b", "מחולל דיוור", "Campaign Analytics — Open Rate / CTR / Bounce", "מדדי ביצוע", "א"],
+  ["20c", "מפת דרכים", "שלב 1 MVP — 6 מודולים מלאים", "+ 1 חלקי", "א"],
+  ["20c", "מפת דרכים", "שלב 2 — WhatsApp + Webforms + PM", "3 מודולים עתידיים", "ב"],
+  ["20d", "שדות ויישויות", "7 סוגי שדות (Text/Currency/Number/Date/Dropdown/Multi/Formula)", "Field Types", "א"],
+  ["20d", "שדות ויישויות", "שדות חובה (Required Fields)", "ולידציה בשמירה", "א"],
+  ["20d", "שדות ויישויות", "שינוי תוויות (Relabeling)", "Hebrew Terminology", "א"],
+  ["20d", "שדות ויישויות", "Drag & Drop Layout", "סידור שדות במסך", "א"],
+  ["20e", "הרשאות", "5 תפקידים: מנכל / מנהל מכירות / סוכן / מחסנאי / כספים", "Role Definition", "א"],
+  ["20e", "הרשאות", "Read-Only / Full CRUD / Modify Only", "שלוש רמות הרשאה", "א"],
+  ["20e", "הרשאות", "הגבלת ייצוא Excel/CSV", "להנהלה בלבד", "א"],
+  ["20f", "תקשורת", "Email Tracking אוטומטי", "כל מייל Timeline", "א"],
+  ["20f", "תקשורת", "Calendar Two-Way Sync", "זימונים אוטומטיים", "א"],
+  ["20f", "תקשורת", "WhatsApp Chat + Template Messages", "ביתאום Timeline", "ב"],
+  ["20f", "תקשורת", "Chatbot — עץ הודעות", "ניתוב פניות", "ב"],
+  ["20g", "אוטומציות", "4 סוגי Trigger (Event/Field/Concat/Formula)", "מנוע חוקים עסקיים", "א"],
+  ["20g", "אוטומציות", "Document Builder — מחולל תבניות", "לוגו + טבלאות דינמיות", "א"],
+  ["20g", "אוטומציות", "Digital Signature + PDF Archive", "שליחה + לכידה + נעילה", "א"],
+  ["20h", "קטלוג אוטומציות", "תרחיש 1 — גבייה: תזכורת 5 ימים + דרישת פירעון", "מייל + התראה פנימית", "א"],
+  ["20h", "קטלוג אוטומציות", "תרחיש 2 — עדכון סטטוס הזמנה (ETA + קליטה)", "מייל אוטומטי", "א"],
+  ["20h", "קטלוג אוטומציות", "תרחיש 3 — חיתום: שליחה + התראה 48שע + שידור SAP", "שלושה פעולות", "א"],
+  ["20h", "קטלוג אוטומציות", "תרחיש 4 — תחנת תיק ייבוא → משימה אוטומטית", "לעובד מצוות", "א"],
+  ["20h", "קטלוג אוטומציות", "תרחיש 5 — Purchase Order לספק בלחיצת כפתור", "מייל מעוצב", "א"],
+  ["20i", "יומן ומשימות", "מודול משימות בסיסי (MVP)", "Create + Assign", "א"],
+  ["20i", "יומן ומשימות", "ניהול פגישות — תיעוד + סיכום + משימות", "קישור לכרטסת", "א"],
+  ["20i", "יומן ומשימות", "Gantt / Kanban / List View + Tasks/Sub-tasks", "ניהול פרויקטים מלא", "ב"],
+  ["21a", "טכנאי שטח", "פתיחת קריאת שירות + שיוך טכנאי", "קישור לכרטסת", "ב"],
+  ["21a", "טכנאי שטח", "Check-In GPS + חותמת זמן אוטומטי", "הגעת טכנאי", "ב"],
+  ["21a", "טכנאי שטח", "חתימת לקוח דיגיטלית על דוח עבודה", "PDF נשמר ב-CRM", "ב"],
+  ["21a", "טכנאי שטח", "Escalation קריאה ללא מענה >4 שעות", "התראה למנהל", "ב"],
+  ["21b", "שירות לקוחות", "Omnichannel Inbox — מייל+WA+טופס+מרכזייה", "תיבה אחת", "ב"],
+  ["21b", "שירות לקוחות", "SLA — 4 רמות דחיפות", "2h/4h/24h/48h", "ב"],
+  ["21b", "שירות לקוחות", "CSAT — סקר שביעות רצון", "מייל / WhatsApp", "ב"],
+  ["21b", "שירות לקוחות", "פנייה חוזרת — דגל + עדיפות גבוהה", "זיהוי חוזרים", "ב"],
+  ["21c", "מרכזייה", "Caller ID + Screen Pop", "פתיחת כרטסת בשיחה נכנסת", "עתידי"],
+  ["21c", "מרכזייה", "Click-to-Call", "לחיצה → שיחה", "עתידי"],
+  ["21c", "מרכזייה", "הקלטת שיחות + Timeline", "תיעוד אוטומטי", "עתידי"],
+  ["21d", "לידים", "6 מקורות לכידה", "Webform/WA/PBX/ידני/קמפיין/AI", "ב"],
+  ["21d", "לידים", "Lead Scoring אוטומטי", "מקור + ענף + פעילות", "ב"],
+  ["21d", "לידים", "5 שלבי Lifecycle — Capture→Convert", "המרה ללקוח + SAP", "ב"],
+  ["21e", "בוט", "שירות: סטטוס הזמנה / יתרת חוב / Ticket / Handoff", "שליפה מ-CRM", "ב"],
+  ["21e", "בוט", "מכירות: לכידת ליד / שאלת מחיר / Handoff", "ניתוב לנציג", "ב"],
+  ["21f", "AI Agent", "Sales Copilot — ניתוח לקוח + המלצת מוצרים", "תובנות מיידיות", "ב"],
+  ["21f", "AI Agent", "Service Intelligence — סיווג פניות + ניקוד דחיפות", "NLP + Sentiment", "ב"],
+  ["21f", "AI Agent", "תובנות גבייה + ניתוח תיק ייבוא", "Predictive + Anomaly", "ב"],
+  ["21f", "AI Agent", "Conversational AI — שיחה טבעית עברית/אנגלית", "RAG + LLM", "ב"],
+  ["21f", "AI Agent", "Audit Log — כל שאלה + תשובת AI מתועדת", "Transparency", "ב"],
+];
+
+document.getElementById('chapter_vendor_response').innerHTML = `
+<div class="chapter-header">
+  <div class="chapter-num">23b</div>
+  <h1 class="chapter-title">מענה נותני שירות / ספקים</h1>
+  <p class="chapter-desc">טבלה מרכזת של כלל דרישות האפיון — לצורך מענה ספקים. ניתן לסינון לפי פרק ושלב וייצוא ל-Excel.</p>
+</div>
+<div class="spec-section">
+  <div class="spec-section-title">כלי סינון וייצוא</div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+    <div>
+      <label style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:5px;">סינון פרק</label>
+      <select id="vrChapFilter" onchange="vrFilter()" style="background:#111;border:1px solid #2A2A2A;color:var(--white);font-family:inherit;font-size:12px;padding:8px 12px;border-radius:2px;min-width:180px;">
+        <option value="">כל הפרקים</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:5px;">סינון שלב</label>
+      <select id="vrPhaseFilter" onchange="vrFilter()" style="background:#111;border:1px solid #2A2A2A;color:var(--white);font-family:inherit;font-size:12px;padding:8px 12px;border-radius:2px;">
+        <option value="">כל השלבים</option>
+        <option value="א">א — MVP</option>
+        <option value="ב">ב — שלב 2</option>
+        <option value="עתידי">עתידי</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--gold);text-transform:uppercase;display:block;margin-bottom:5px;">סינון מענה</label>
+      <select id="vrResponseFilter" onchange="vrFilter()" style="background:#111;border:1px solid #2A2A2A;color:var(--white);font-family:inherit;font-size:12px;padding:8px 12px;border-radius:2px;">
+        <option value="">כל הסטטוסים</option>
+        <option value="יש">יש</option>
+        <option value="אין">אין</option>
+        <option value="מצריך פיתוח">מצריך פיתוח</option>
+        <option value="ממתין">ממתין למענה</option>
+      </select>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:8px;">
+      <button onclick="vrExportExcel()" style="font-family:inherit;font-size:12px;font-weight:700;padding:9px 18px;background:linear-gradient(135deg,#9A7830,#C9A84C);color:#0A0A0A;border:none;border-radius:2px;cursor:pointer;letter-spacing:0.5px;">&#8595; ייצוא Excel</button>
+      <button onclick="vrReset()" style="font-family:inherit;font-size:12px;padding:9px 14px;background:#1A1A1A;color:var(--white-dim);border:1px solid #2A2A2A;border-radius:2px;cursor:pointer;">איפוס</button>
+    </div>
+    <div style="margin-top:20px;margin-right:auto;">
+      <span id="vrCount" style="font-size:11px;color:var(--gold);font-weight:600;"></span>
+    </div>
+  </div>
+  <div style="overflow-x:auto;">
+    <table id="vrTable" style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead>
+        <tr style="background:#1A1A1A;">
+          <th style="padding:9px 10px;text-align:right;color:#C9A84C;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid #1E1E1E;white-space:nowrap;">פרק</th>
+          <th style="padding:9px 10px;text-align:right;color:#C9A84C;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid #1E1E1E;">נושא</th>
+          <th style="padding:9px 10px;text-align:right;color:#C9A84C;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid #1E1E1E;">סעיף</th>
+          <th style="padding:9px 10px;text-align:right;color:#C9A84C;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid #1E1E1E;white-space:nowrap;">שלב</th>
+          <th style="padding:9px 10px;text-align:right;color:#C9A84C;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid #1E1E1E;min-width:150px;">מענה</th>
+          <th style="padding:9px 10px;text-align:right;color:#C9A84C;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid #1E1E1E;min-width:200px;">הערות</th>
+        </tr>
+      </thead>
+      <tbody id="vrBody"></tbody>
+    </table>
+  </div>
+</div>
+`;
+
+// ─── Build vendor response table ───
+(function() {
+  var phaseColors = { '\u05d0': '#50C878', '\u05d1': '#7EB8FF', '\u05e2\u05ea\u05d9\u05d3\u05d9': '#7A776F' };
+  var responseOpts = ['\u05d9\u05e9', '\u05d0\u05d9\u05df', '\u05de\u05e6\u05e8\u05d9\u05da \u05e4\u05d9\u05ea\u05d5\u05d7', '\u05de\u05de\u05ea\u05d9\u05df'];
+  var responseColors = { '\u05d9\u05e9':'#50C878', '\u05d0\u05d9\u05df':'#FF8080', '\u05de\u05e6\u05e8\u05d9\u05da \u05e4\u05d9\u05ea\u05d5\u05d7':'#C9A84C', '\u05de\u05de\u05ea\u05d9\u05df':'#7A776F' };
+  var responses = {};
+  var notes = {};
+
+  // Populate chapter filter
+  var chapFilter = document.getElementById('vrChapFilter');
+  var chapters = {};
+  specRows.forEach(function(r){ chapters[r[0]] = r[1]; });
+  Object.keys(chapters).sort().forEach(function(k){
+    var opt = document.createElement('option');
+    opt.value = k;
+    opt.textContent = k + ' — ' + chapters[k];
+    chapFilter.appendChild(opt);
+  });
+
+  function getKey(i){ return 'vr_' + i; }
+
+  function renderRow(i, row) {
+    var key = getKey(i);
+    var phase = row[4];
+    var phColor = phaseColors[phase] || '#7A776F';
+    var resp = responses[key] || '';
+    var respColor = responseColors[resp] || '#7A776F';
+    var note = notes[key] || '';
+    var tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #161616';
+    tr.dataset.chap = row[0];
+    tr.dataset.phase = phase;
+    tr.dataset.resp = resp;
+    tr.innerHTML = [
+      '<td style="padding:8px 10px;font-family:monospace;color:#C9A84C;font-size:11px;white-space:nowrap;">' + row[0] + '</td>',
+      '<td style="padding:8px 10px;color:#F5F2EC;font-weight:600;">' + row[1] + '</td>',
+      '<td style="padding:8px 10px;color:#C8C4BB;">' + row[2] + '<br><small style="color:#7A776F;">' + row[3] + '</small></td>',
+      '<td style="padding:8px 10px;text-align:center;"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:2px;background:' + phColor + '22;color:' + phColor + ';border:1px solid ' + phColor + '44;">' + phase + '</span></td>',
+      '<td style="padding:8px 10px;"><select data-key="' + key + '" onchange="vrSetResponse(this)" style="width:100%;background:#111;border:1px solid ' + (resp ? respColor+'44' : '#2A2A2A') + ';color:' + (resp ? respColor : '#7A776F') + ';font-family:inherit;font-size:11px;font-weight:' + (resp ? '700' : '400') + ';padding:6px 8px;border-radius:2px;">' +
+        '<option value="">\u2014 \u05d1\u05d7\u05e8 \u05de\u05e2\u05e0\u05d4 \u2014</option>' +
+        responseOpts.map(function(o){ return '<option value="' + o + '"' + (resp === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') +
+        '</select></td>',
+      '<td style="padding:8px 10px;"><input type="text" data-key="' + key + '" onchange="vrSetNote(this)" value="' + note.replace(/"/g,'&quot;') + '" placeholder="\u05d4\u05e2\u05e8\u05d5\u05ea \u05d7\u05d5\u05e4\u05e9\u05d9\u05ea..." style="width:100%;background:#1A1A1A;border:1px solid #2A2A2A;color:#C8C4BB;font-family:inherit;font-size:11px;padding:6px 8px;border-radius:2px;box-sizing:border-box;"></td>'
+    ].join('');
+    return tr;
+  }
+
+  window.vrSetResponse = function(sel) {
+    var key = sel.dataset.key;
+    responses[key] = sel.value;
+    var color = responseColors[sel.value] || '#7A776F';
+    sel.style.color = color;
+    sel.style.fontWeight = sel.value ? '700' : '400';
+    sel.style.borderColor = sel.value ? color+'44' : '#2A2A2A';
+    sel.closest('tr').dataset.resp = sel.value;
+  };
+
+  window.vrSetNote = function(inp) {
+    notes[inp.dataset.key] = inp.value;
+  };
+
+  window.vrFilter = function() {
+    var chapVal   = document.getElementById('vrChapFilter').value;
+    var phaseVal  = document.getElementById('vrPhaseFilter').value;
+    var respVal   = document.getElementById('vrResponseFilter').value;
+    var rows = document.querySelectorAll('#vrBody tr');
+    var visible = 0;
+    rows.forEach(function(tr) {
+      var show = true;
+      if (chapVal  && tr.dataset.chap  !== chapVal)  show = false;
+      if (phaseVal && tr.dataset.phase !== phaseVal)  show = false;
+      if (respVal  && tr.dataset.resp  !== respVal)   show = false;
+      tr.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('vrCount').textContent = visible + ' / ' + specRows.length + ' \u05e1\u05e2\u05d9\u05e4\u05d9\u05dd';
+  };
+
+  window.vrReset = function() {
+    document.getElementById('vrChapFilter').value = '';
+    document.getElementById('vrPhaseFilter').value = '';
+    document.getElementById('vrResponseFilter').value = '';
+    vrFilter();
+  };
+
+  window.vrExportExcel = function() {
+    var cols = ['\u05e4\u05e8\u05e7', '\u05e0\u05d5\u05e9\u05d0', '\u05e1\u05e2\u05d9\u05e3', '\u05e1\u05e2\u05d9\u05e3 \u05de\u05e9\u05e0\u05d4', '\u05e9\u05dc\u05d1', '\u05de\u05e2\u05e0\u05d4', '\u05d4\u05e2\u05e8\u05d5\u05ea'];
+    var csv = '\uFEFF' + cols.join(',') + '\r\n';
+    specRows.forEach(function(r, i) {
+      var key = getKey(i);
+      var resp = responses[key] || '';
+      var note = (notes[key] || '').replace(/,/g, ';').replace(/\r?\n/g, ' ');
+      var row = [r[0], r[1], r[2], r[3], r[4], resp, note];
+      csv += row.map(function(c){ return '"' + String(c).replace(/"/g,'""') + '"'; }).join(',') + '\r\n';
+    });
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'zumerich-crm-vendor-response.csv';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+  };
+
+  // Initial render
+  var tbody = document.getElementById('vrBody');
+  specRows.forEach(function(r, i){ tbody.appendChild(renderRow(i, r)); });
+  document.getElementById('vrCount').textContent = specRows.length + ' \u05e1\u05e2\u05d9\u05e4\u05d9\u05dd';
+})();
+
+// ══════════════════════════════════════════════
 //  NAVIGATION LOGIC
+
 
 
 
